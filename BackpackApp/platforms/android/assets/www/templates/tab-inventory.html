@@ -1,16 +1,26 @@
 ﻿<ion-view view-title="Inventario">
-    <ion-content class="tab-inventory">
+    <ion-content class="tab-inventory has-header has-footer">
         <ion-list>
             <div ng-repeat="bag in bags">
                 <ion-item class="item-stable" ng-click="toggleBag(bag)" ng-class="{active:bag.isOpen}">
                     <i class="icon" ng-class="bag.isOpen ? 'ion-minus' : 'ion-plus'"></i>
                     &nbsp;
                     {{bag.Name}}
+                    <item-inner-checkbox ng-model="bag.IsMain" ng-click="selectMainBag($event, bag)"></item-inner-checkbox>
                 </ion-item>
-                <ion-item class="item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen">
+                <ion-item class="item item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen">
                     {{item.Name}}
+                    <span class="badge badge-floating badge-balanced">
+                        {{item.Quantity}}
+                    </span>
+                    <span class="item-note">
+                        {{getItemWeight(item)}} Kg
+                    </span>
                 </ion-item>
             </div>
         </ion-list>
     </ion-content>
+    <ion-footer-bar align-title="center" class="load" ng-class="{{getLoadClass()}}">
+        <h1 class="title">Carico corrente: {{getLoad()}} Kg</h1>
+    </ion-footer-bar>
 </ion-view>

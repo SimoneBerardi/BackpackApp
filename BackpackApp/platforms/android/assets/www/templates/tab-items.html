@@ -1,0 +1,22 @@
+﻿<ion-view view-title="Oggetti">
+    <ion-content class="tab-items">
+        <ion-list>
+            <div ng-repeat="category in categories | orderBy:'Name'">
+                <ion-item class="item-stable" ng-click="toggleCategory(category)" ng-class="{active:category.isOpen}">
+                    <i class="icon" ng-class="category.isOpen ? 'ion-minus' : 'ion-plus'"></i>
+                    &nbsp;
+                    {{category.Name}}
+                </ion-item>
+                <ion-item class="item item-accordion" ng-repeat="item in category.items | orderBy:'Name'" ng-show="category.isOpen" ng-click="addItem(item)">
+                    {{item.Name}}
+                    <span class="badge badge-floating badge-balanced" ng-hide="getInventoryQuantity(item) == 0">
+                        {{getInventoryQuantity(item)}}
+                    </span>
+                    <span class="item-note">
+                        {{item.Weight}} Kg
+                    </span>
+                </ion-item>
+            </div>
+        </ion-list>
+    </ion-content>
+</ion-view>

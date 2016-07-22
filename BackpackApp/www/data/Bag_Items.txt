@@ -1,8 +1,8 @@
-Id,Bag_Id,Item_Id,Quantity,Notes
-1,1,3,2,
-2,1,1,1,
-3,1,1,3,
-4,2,7,1,
-5,2,8,3,
-6,2,15,1,
-7,2,33,3,
+Id,Bag_Id,Item_Id,Quantity,IsModified,Notes
+1,1,3,2,0,
+2,1,1,1,1,Guanto d'arme magico!
+3,1,1,3,0,
+4,2,7,1,0,
+5,2,8,3,0,
+6,2,15,1,0,
+7,2,33,3,0,

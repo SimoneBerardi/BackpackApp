@@ -4,10 +4,13 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic',
+    //Directives
+    "backpack.directives",
     //Controllers
     "backpack.controllers.characters",
     "backpack.controllers.tabcharacter",
     "backpack.controllers.tabinventory",
+    "backpack.controllers.tabitems",
     //Services
     "backpack.services.utility",
     "backpack.services.loader",
@@ -32,7 +35,9 @@ angular.module('starter', ['ionic',
     });
 })
 
-.config(function ($stateProvider, $urlRouterProvider) {
+.config(function ($stateProvider, $ionicConfigProvider, $urlRouterProvider) {
+    $ionicConfigProvider.tabs.position('top');
+
     $stateProvider
     .state("characters", {
         url: "/characters",
@@ -60,6 +65,15 @@ angular.module('starter', ['ionic',
             "tab-inventory": {
                 templateUrl: "templates/tab-inventory.html",
                 controller: "TabInventoryCtrl"
+            }
+        }
+    })
+    .state("tabs.items", {
+        url: "/items",
+        views: {
+            "tab-items": {
+                templateUrl: "templates/tab-items.html",
+                controller: "TabItemsCtrl"
             }
         }
     })

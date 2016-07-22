@@ -23,6 +23,13 @@
         },
         bagItems: {
             name: "Bag_Items",
+        },
+        categories: {
+            name: "Categories",
+            foreignKey: "Category_Id",
+        },
+        loads: {
+            name: "Loads",
         }
     }
 

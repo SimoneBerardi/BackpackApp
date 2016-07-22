@@ -1,14 +1,14 @@
 ﻿{
   "tables": [
     {
+      "name": "Categories",
+      "create": "CREATE TABLE 'Categories' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Notes' TEXT )",
+      "data": "data/Categories.txt"
+    },
+    {
       "name": "Characters",
       "create": "CREATE TABLE 'Characters' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Strength' INTEGER NOT NULL DEFAULT 0, 'Size' INTEGER NOT NULL DEFAULT 1, 'Race' TEXT, 'Class' TEXT, 'Image' TEXT NOT NULL, 'Notes' TEXT )",
       "data": "data/Characters.txt"
-    },
-    {
-      "name": "ItemCategories",
-      "create": "CREATE TABLE 'ItemCategories' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Notes' TEXT )",
-      "data": "data/ItemCategories.txt"
     },
     {
       "name": "Items",
@@ -27,12 +27,12 @@
     },
     {
       "name": "Bag_Items",
-      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'Notes' TEXT, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
+      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'IsModified' NUMERIC NOT NULL DEFAULT 0, 'Notes' TEXT, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
       "data": "data/Bag_Items.txt"
     },
     {
       "name": "Character_Bags",
-      "create": "CREATE TABLE 'Character_Bags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Capacity' REAL, 'Weight' REAL NOT NULL, 'HasFixedWeight' INTEGER NOT NULL DEFAULT 0, 'IsEquipped' INTEGER NOT NULL DEFAULT 0, 'IsMain' INTEGER NOT NULL DEFAULT 0, 'Image' TEXT, 'Character_Id' INTEGER NOT NULL, FOREIGN KEY('Character_Id') REFERENCES 'Characters(Id)' )",
+      "create": "CREATE TABLE 'Character_Bags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Capacity' REAL, 'Weight' REAL NOT NULL, 'HasFixedWeight' NUMERIC NOT NULL DEFAULT 0, 'IsEquipped' NUMERIC NOT NULL DEFAULT 0, 'IsMain' NUMERIC NOT NULL DEFAULT 0, 'Image' TEXT, 'Character_Id' INTEGER NOT NULL, FOREIGN KEY('Character_Id') REFERENCES 'Characters(Id)' )",
       "data": "data/Character_Bags.txt"
     },
     {
