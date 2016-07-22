@@ -1,4 +1,21 @@
-/* FIX scroll issue */
+﻿/* FIX scroll issue */
 .overflow-scroll {
-  overflow-y: auto;
-}
+  overflow-y: auto; }
+
+.tab-character img {
+  display: block;
+  margin: auto;
+  height: 50%; }
+
+.tab-inventory .list .item.item-accordion {
+  line-height: 38px;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: 0.09s all linear; }
+
+.tab-inventory .list .item.item-accordion.ng-hide {
+  line-height: 0px; }
+
+.tab-inventory .list .item.item-accordion.ng-hide-add, .tab-inventory .list .item.item-accordion.ng-hide-remove {
+  display: block !important; }
+

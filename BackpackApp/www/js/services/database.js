@@ -11,52 +11,42 @@
     //Metodi pubblici
     self.init = function () {
         var deferred = $q.defer();
-        //return self._loadDatabase().then(function () {
-        //    self.db = sqlitePlugin.openDatabase("backpack.db", "1.0", "", 1);
-        //});
-
-        //Debug
-        self._loadBrowserDatabase().then(function () {
-            self._getTables().then(function (tables) {
-                var promises = [];
-                self.tables = {};
-                angular.forEach(tables, function (table) {
-                    if (table.name[0] != "_") {
-                        promises.push(self._selectAll(table.name).then(function (values) {
-                            self.tables[table.name] = [];
-                            angular.merge(self.tables[table.name], values);
-                        }));
-                    }
-                });
-                $q.all(promises).then(function () {
-                    deferred.resolve();
-                });
-            });
+        self._loadDatabase()
+        .then(function () {
+            deferred.resolve();
         });
-
         return deferred.promise;
     };
-
-    //Metodi privati
-    self._getTables = function () {
-        var query = "SELECT name FROM sqlite_master WHERE type='table'";
-        return self._query(query);
-    };
-    self._selectAll = function (table) {
+    self.selectAll = function (table) {
         var query = "SELECT * FROM " + table;
         return self._query(query);
+    };
+    self.selectByColumn = function (table, column, value) {
+        var query = "SELECT * FROM " + table + " WHERE " + column + " = ?";
+        return self._query(query, [value]);
+    }
+    self.selectById = function (table, value) {
+        var query = "SELECT * FROM " + table + "WHERE Id = ?";
+        return self._query(query, [value]);
+    }
+
+    //Metodi privati
+    self._loadDatabase = function () {
+        //return self._loadNativeDatabase();
+
+        //Debug
+        return self._loadBrowserDatabase();
     };
     //Carica il database su browser
     self._loadBrowserDatabase = function () {
         var deferred = $q.defer();
-        var promises = [];
+
         self.db = window.openDatabase("backpack.db", "1.0", "database", -1);
-        promises.push(self._createTables());
-        promises.push(self._populateTable("Items"));
-        promises.push(self._populateTable("Loads"));
-        $q.all(promises).then(function () {
-            deferred.resolve();
-        });
+        self._createTables()
+            .then(function () {
+                deferred.resolve();
+            });
+
         return deferred.promise;
     };
     self._createTables = function () {
@@ -64,7 +54,7 @@
         var promises = [];
         $http.get("data/database.json").success(function (data) {
             angular.forEach(data.tables, function (table) {
-                promises.push(self._query(table.create));
+                promises.push(self._loadTableJson(table));
             });
             $q.all(promises).then(function () {
                 deferred.resolve();
@@ -72,26 +62,47 @@
         });
         return deferred.promise;
     };
-    self._populateTable = function (name) {
+    self._loadTableJson = function (table) {
+        var deferred = $q.defer();
+        self._deleteTable(table.name)
+        .then(function () {
+            return self._query(table.create);
+        })
+        .then(function () {
+            return self._populateTable(table);
+        })
+        .then(function () {
+            deferred.resolve();
+        });
+        return deferred.promise;
+    };
+    self._deleteTable = function (name) {
+        var query = "DROP TABLE IF EXISTS " + name;
+        return self._query(query);
+    };
+    self._populateTable = function (table) {
         var deferred = $q.defer();
         var promises = [];
-        $http.get("data/" + name + ".txt").success(function (data) {
-            var lines = data.split("\n");
-            var columns = lines[0];
-            lines.splice(0, 1);
-            angular.forEach(lines, function (line) {
-                var query = "INSERT OR REPLACE INTO " + name + " (" + columns + ") VALUES(";
-                angular.forEach(line.split(","), function (cell) {
-                    query += "\"" + cell + "\",";
+        if (table.data != "")
+            $http.get(table.data).success(function (data) {
+                var lines = data.split("\n");
+                var columns = lines[0];
+                lines.splice(0, 1);
+                angular.forEach(lines, function (line) {
+                    var query = "INSERT OR REPLACE INTO " + table.name + " (" + columns + ") VALUES(";
+                    angular.forEach(line.split(","), function (cell) {
+                        query += "\"" + cell + "\",";
+                    });
+                    query = query.slice(0, -1);
+                    query += ")";
+                    promises.push(self._query(query));
                 });
-                query = query.slice(0, -1);
-                query += ")";
-                promises.push(self._query(query));
+                $q.all(promises).then(function () {
+                    deferred.resolve();
+                })
             });
-            $q.all(promises).then(function () {
-                deferred.resolve();
-            })
-        });
+        else
+            deferred.resolve();
 
         return deferred.promise;
     };
@@ -107,6 +118,7 @@
                 });
                 deferred.resolve(output);
             }, function (transaction, error) {
+                $log.log("Errore in query: " + query);
                 $log.log(error.message);
                 deferred.reject(error);
             });
@@ -114,7 +126,7 @@
         return deferred.promise;
     };
     //Carica il database su dispositivo se non presente
-    self._loadDatabase = function () {
+    self._loadNativeDatabase = function () {
         var deferred = $q.defer();
         var sourceFileName = cordova.file.applicationDirectory + "www/data/" + this.dbName;
         var targetDirName = cordova.file.dataDirectory;

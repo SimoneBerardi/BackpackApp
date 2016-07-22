@@ -6,12 +6,15 @@
 angular.module('starter', ['ionic',
     //Controllers
     "backpack.controllers.characters",
+    "backpack.controllers.tabcharacter",
+    "backpack.controllers.tabinventory",
     //Services
+    "backpack.services.utility",
     "backpack.services.loader",
     "backpack.services.database",
     "backpack.services.session"])
 
-.run(function ($ionicPlatform, Database) {
+.run(function ($ionicPlatform, Utility) {
     $ionicPlatform.ready(function () {
         if (cordova.platformId === 'ios' && window.cordova && window.cordova.plugins.Keyboard) {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -26,9 +29,40 @@ angular.module('starter', ['ionic',
         if (window.StatusBar) {
             StatusBar.styleDefault();
         }
-
-        Database.init().then(function () {
-            debugger;
-        })
     });
+})
+
+.config(function ($stateProvider, $urlRouterProvider) {
+    $stateProvider
+    .state("characters", {
+        url: "/characters",
+        templateUrl: "templates/characters.html",
+        controller: "CharactersCtrl",
+    })
+
+    .state("tabs", {
+        url: "/tabs",
+        abstract: true,
+        templateUrl: "templates/tabs.html"
+    })
+    .state("tabs.character", {
+        url: "/character",
+        views: {
+            "tab-character": {
+                templateUrl: "templates/tab-character.html",
+                controller: "TabCharacterCtrl"
+            }
+        }
+    })
+    .state("tabs.inventory", {
+        url: "/inventory",
+        views: {
+            "tab-inventory": {
+                templateUrl: "templates/tab-inventory.html",
+                controller: "TabInventoryCtrl"
+            }
+        }
+    })
+
+    $urlRouterProvider.otherwise('/characters');
 })

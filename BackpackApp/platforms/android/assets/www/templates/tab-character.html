@@ -1,0 +1,17 @@
+﻿<ion-view view-title="{{character.Name}}">
+    <ion-content class="tab-character">
+        <img ng-src="{{character.Image}}" />
+        <ion-item>
+            <h1>Forza: {{character.Strength}}</h1>
+            <h1>Taglia: {{character.sizeName}}</h1>
+        </ion-item>
+        <ion-item>
+            <h1>Classe: {{character.Class}}</h1>
+            <h1>Razza: {{character.Race}}</h1>
+        </ion-item>
+        <h3>Note</h3>
+        <ion-item>
+            <textarea>{{character.Notes}}</textarea>
+        </ion-item>
+    </ion-content>
+</ion-view>

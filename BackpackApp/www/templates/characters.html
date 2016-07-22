@@ -1,0 +1,12 @@
+﻿<ion-view>
+    <ion-content>
+        <ion-list>
+            <ion-item class="item-thumbnail-left" ng-repeat="character in characters" ng-click="select(character)">
+                <img ng-src="{{character.Image}}" />
+                <h1>{{character.Name}}</h1>
+                <h2>Forza: {{character.Strength}}</h2>
+                <h2>{{character.Class}} / {{character.Race}}</h2>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

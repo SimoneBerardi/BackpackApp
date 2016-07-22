@@ -1,41 +1,41 @@
-Id,Name,Description,Weight,Notes
-1,Guanto d'arme,,0.5,
-2,Guanto d'arme chiodato,,0.5,
-3,Pugnale,,0.5,
-4,Pugnale da mischia,,0.5,
-5,Falcetto,,1.0,
-6,Mazza leggera,,2.0,
-7,Lancia corta,,1.5,
-8,Mazza pesante,,4.0,
-9,Morning star,,3.0,
-10,Randello,,1.5,
-11,Bastone ferrato,,2.0,
-12,Lancia,,3.0,
-13,Lancia lunga,,4.5,
-14,Balestra leggera,,2.0,
-15,Quadrelli (10),,0.5,
-16,Balestra pesante,,4.0,
-17,Dardo,,0.25,
-18,Fionda,,0.0,
-19,Proiettili per fionda (10),,2.5,
-20,Giavellotto,,1.0,
-21,Armatura chiodata,,0.0,
-22,Ascia,,1.5,
-23,Ascia da lancio,,1.0,
-24,Kukri,,1.0,
-25,Manganello,,1.0,
-26,Martello leggero,,1.0,
-27,Piccone leggero,,1.5,
-28,Scudo chiodato leggero,,0.0,
-29,Scudo leggero,,0.0,
-30,Spada corta ,,1.0,
-31,Ascia da battaglia,,3.0,
-32,Martello da guerra,,2.5,
-33,Mazzafrusto,,2.5,
-34,Piccone pesante,,3.0,
-35,Scimitarra,,2.0,
-36,Scudo chidato pesante,,0.0,
-37,Scudo pesante,,0.0,
-38,Spada lunga,,2.0,
-39,Stocco,,1.0,
-40,Tridente,,2.0,
+Id,Name,Description,Weight,Notes,Image,Category_Id
+1,Guanto d'arme,,0.5,,,1
+2,Guanto d'arme chiodato,,0.5,,,1
+3,Pugnale,,0.5,,,1
+4,Pugnale da mischia,,0.5,,,1
+5,Falcetto,,1.0,,,1
+6,Mazza leggera,,2.0,,,1
+7,Lancia corta,,1.5,,,1
+8,Mazza pesante,,4.0,,,1
+9,Morning star,,3.0,,,1
+10,Randello,,1.5,,,1
+11,Bastone ferrato,,2.0,,,1
+12,Lancia,,3.0,,,1
+13,Lancia lunga,,4.5,,,1
+14,Balestra leggera,,2.0,,,1
+15,Quadrelli (10),,0.5,,,1
+16,Balestra pesante,,4.0,,,1
+17,Dardo,,0.25,,,1
+18,Fionda,,0.0,,,1
+19,Proiettili per fionda (10),,2.5,,,1
+20,Giavellotto,,1.0,,,1
+21,Armatura chiodata,,0.0,,,1
+22,Ascia,,1.5,,,1
+23,Ascia da lancio,,1.0,,,1
+24,Kukri,,1.0,,,1
+25,Manganello,,1.0,,,1
+26,Martello leggero,,1.0,,,1
+27,Piccone leggero,,1.5,,,1
+28,Scudo chiodato leggero,,0.0,,,1
+29,Scudo leggero,,0.0,,,1
+30,Spada corta ,,1.0,,,1
+31,Ascia da battaglia,,3.0,,,1
+32,Martello da guerra,,2.5,,,1
+33,Mazzafrusto,,2.5,,,1
+34,Piccone pesante,,3.0,,,1
+35,Scimitarra,,2.0,,,1
+36,Scudo chidato pesante,,0.0,,,1
+37,Scudo pesante,,0.0,,,1
+38,Spada lunga,,2.0,,,1
+39,Stocco,,1.0,,,1
+40,Tridente,,2.0,,,1
