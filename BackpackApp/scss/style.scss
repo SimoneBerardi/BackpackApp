@@ -4,22 +4,59 @@
 }
 
 //Direttive
-div.item-inner-checkbox {
+.col-checkbox {
     height: 100%;
-    width: 3em;
-    right: 0;
-    position: absolute;
-    top: 0;
-    padding: 0.2em;
-
-    input {
-        width: 100%;
-        height: 100%;
-    }
+    width: 100%;
 }
 
 .badge.badge-floating {
     right: 5em;
+}
+
+.table-list .list .item {
+    line-height: 1.5;
+    padding: 10px;
+}
+
+.text-outlined {
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.popup-quantity {
+    input {
+        font-size: 20pt;
+        text-align: center;
+        height: 100%;
+    }
+
+    img {
+        width: 100%;
+    }
+}
+
+.list {
+    .item {
+
+        .row {
+            padding: 0;
+
+            .col {
+                padding: 0;
+            }
+        }
+
+        &.item-accordion {
+            transition: 0.09s all linear;
+
+            &.ng-hide {
+                line-height: 0;
+            }
+
+            &.ng-hide-add, &.ng-hide-remove {
+                display: block !important;
+            }
+        }
+    }
 }
 
 //Pagine
@@ -32,23 +69,80 @@ div.item-inner-checkbox {
 }
 
 .tab-inventory {
-    .list {
-        .item.item-accordion {
-            transition: 0.09s all linear;
+    .list .item {
+
+        &.bag {
+            .col {
+                &.name {
+                    font-weight: bold;
+                    font-size: 16pt;
+                }
+
+                &.weight {
+                    font-size: 14pt;
+                    text-align: center;
+                }
+            }
         }
 
-        .item.item-accordion.ng-hide {
-            line-height: 0px;
+        &.bag-load {
+            font-size: 14pt;
+            text-align: right;
         }
 
-        .item.item-accordion.ng-hide-add, .item.item-accordion.ng-hide-remove {
-            display: block !important;
+        &.bag-item {
+            .col {
+                &.name {
+                    font-size: 16pt;
+                }
+
+                &.quantity {
+                    font-size: 14pt;
+                    text-align: center;
+                    font-weight: bold;
+                }
+
+                &.weight {
+                    font-size: 14pt;
+                    text-align: right;
+                }
+            }
         }
     }
+}
 
-    .load {
-        span {
-            float: right;
+.tab-items {
+    .list .item {
+
+        &.category {
+            .col {
+                &.name {
+                    font-weight: bold;
+                    font-size: 16pt;
+                }
+            }
+        }
+
+        &.category-item {
+            .col {
+                &.name {
+                    font-size: 16pt;
+                }
+
+                &.quantity {
+                    font-size: 14pt;
+                    text-align: center;
+                    font-weight: bold;
+                    background: #33cd5f;
+                    color: white;
+                    border-radius: 12pt;
+                }
+
+                &.weight {
+                    font-size: 14pt;
+                    text-align: right;
+                }
+            }
         }
     }
 }

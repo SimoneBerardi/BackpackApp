@@ -4,9 +4,12 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic',
+    //Extensions
+    "backpack.extensions",
     //Directives
     "backpack.directives",
     //Controllers
+    "backpack.controllers.popup",
     "backpack.controllers.characters",
     "backpack.controllers.tabcharacter",
     "backpack.controllers.tabinventory",

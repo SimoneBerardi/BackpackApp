@@ -1,26 +1,48 @@
 ﻿<ion-view view-title="Inventario">
     <ion-content class="tab-inventory has-header has-footer">
-        <ion-list>
+        <popup-quantity ng-model="ngModel"></popup-quantity>
+        <ion-list class="table-list">
             <div ng-repeat="bag in bags">
-                <ion-item class="item-stable" ng-click="toggleBag(bag)" ng-class="{active:bag.isOpen}">
-                    <i class="icon" ng-class="bag.isOpen ? 'ion-minus' : 'ion-plus'"></i>
-                    &nbsp;
-                    {{bag.Name}}
-                    <item-inner-checkbox ng-model="bag.IsMain" ng-click="selectMainBag($event, bag)"></item-inner-checkbox>
+                <ion-item class="item-stable bag" ng-click="toggleBag(bag)" ng-class="{active:bag.isOpen}">
+                    <div class="row">
+                        <div class="col col-10">
+                            <i class="icon" ng-class="bag.isOpen ? 'ion-minus' : 'ion-plus'"></i>
+                        </div>
+                        <div class="col name">
+                            {{bag.Name}}
+                        </div>
+                        <div class="col col-20 weight" ng-hide="bag.Weight == 0">
+                            {{bag.Weight}} Kg
+                        </div>
+                        <div class="col col-10 select">
+                            <input class="col-checkbox" type="checkbox" ng-model="bag.IsMain" ng-click="selectMainBag($event, bag)" />
+                        </div>
+                    </div>
                 </ion-item>
-                <ion-item class="item item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen">
-                    {{item.Name}}
-                    <span class="badge badge-floating badge-balanced">
-                        {{item.Quantity}}
-                    </span>
-                    <span class="item-note">
-                        {{getItemWeight(item)}} Kg
-                    </span>
+                <ion-item class="bag-load text-outlined" ng-show="bag.HasFixedWeight" ng-class="getBagLoadClass(bag)">
+                    Carico: {{getBagLoad(bag)}} / {{bag.Capacity}} Kg
+                </ion-item>
+                <!--<ion-item class="item item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen" on-hold="activateMultipleSelection(item)" ng-click="toggleItem(item)">-->
+                <ion-item class="item item-accordion bag-item" ng-repeat="item in bag.items" ng-show="bag.isOpen" on-hold="removeItemQuantity(bag, item)">
+                    <div class="row">
+                        <div class="col name">
+                            {{item.Name}}
+                        </div>
+                        <div class="col col-10 quantity">
+                            {{item.Quantity}}
+                        </div>
+                        <div class="col col-25 weight">
+                            {{getItemWeight(item)}} Kg
+                        </div>
+                        <div class="col col-10" ng-show="isMultipleSelection">
+                            <input class="col-checkbox" type="checkbox" ng-model="item.isSelected" />
+                        </div>
+                    </div>
                 </ion-item>
             </div>
         </ion-list>
     </ion-content>
-    <ion-footer-bar align-title="center" class="load" ng-class="{{getLoadClass()}}">
+    <ion-footer-bar align-title="center" class="load text-outlined" ng-class="getLoadClass()">
         <h1 class="title">Carico corrente: {{getLoad()}} Kg</h1>
     </ion-footer-bar>
 </ion-view>

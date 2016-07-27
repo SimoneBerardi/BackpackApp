@@ -1,6 +1,6 @@
 ﻿angular.module("backpack.services.utility", [])
 
-.factory("Utility", function ($q) {
+.factory("Utility", function () {
     var self = this;
 
     self.sizes = {

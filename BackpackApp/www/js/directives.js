@@ -1,12 +1,13 @@
 ﻿angular.module("backpack.directives", [])
 
-.directive("itemInnerCheckbox", function () {
-    return {
-        templateUrl: "templates/directives/item-inner-checkbox.html",
-        restrict: "E",
-        replace: true,
-        scope: {
-            ngModel: "=",
-        },
-    };
-})
+//.directive("popupQuantity", function () {
+//    return {
+//        templateUrl: "templates/directives/popup-quantity.html",
+//        restrict: "E",
+//        replace: true,
+//        scope: {
+//            ngModel: "=",
+//        },
+//        controller: "QuantityPopupCtrl",
+//    };
+//})
