@@ -7,9 +7,17 @@
     $scope.itemId = parseInt($stateParams.itemId);
 
     if ($scope.itemId == -1) {
-        $scope.item.IsCustom = true;
-        $scope.item[Utility.tables.categories.foreignKey] = 1;
-        //TODO carica valori di default in $scope.item
+        $scope.item = {
+            Id: $scope.itemId,
+            Name: "Nuovo oggetto",
+            Description: "",
+            Weight: 0.0,
+            Notes: "",
+            Image: "",
+            IsCustom: true,
+            IsUnidentified: false,
+        };
+        $scope.item[Utility.tables.categories.foreignKey] = Session.categories[0].Id;
     } else {
         angular.copy(Session.getItem($scope.itemId), $scope.item);
     }

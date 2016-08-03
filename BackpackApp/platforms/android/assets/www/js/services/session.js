@@ -17,10 +17,10 @@
     self.init = function () {
         var deferred = $q.defer();
         Database.init().then(function () {
-            return Database.selectAll(Utility.tables.loads.name);
+            return Database.selectAll(Utility.tables.loads);
         }).then(function (loads) {
             self.loads = loads;
-            return Database.selectAll(Utility.tables.characters.name);
+            return Database.selectAll(Utility.tables.characters);
         }).then(function (characters) {
             //Carico i personaggi
             angular.forEach(characters, function (character) {
@@ -28,7 +28,7 @@
             });
             self.characters = characters;
             //Carico gli oggetti
-            return Database.selectAll(Utility.tables.items.name);
+            return Database.selectAll(Utility.tables.items);
         }).then(function (items) {
             angular.forEach(items, function (item) {
                 item.IsCustom = item.IsCustom == 1;
@@ -36,12 +36,12 @@
             })
             self.items = items;
             //Carico le categorie degli oggetti
-            return Database.selectAll(Utility.tables.categories.name);
+            return Database.selectAll(Utility.tables.categories);
         }).then(function (categories) {
             self.categories = categories;
             self._loadCategories(self.categories);
             //Carico i tags
-            return Database.selectAll(Utility.tables.tags.name);
+            return Database.selectAll(Utility.tables.tags);
         }).then(function (tags) {
             self.tags = tags;
 
@@ -52,21 +52,23 @@
         return deferred.promise;
     };
     self.removeBagItemPopup = function (bag, item, quantity) {
-        Utility.confirmDelete(quantity, item.Name, function () {
+        Utility.confirmDeleteItemQuantity(quantity, item.Name, function () {
             self.removeBagItem(bag, item, quantity);
         })
     };
     self.getItemTags = function (id) {
         var deferred = $q.defer();
-        Database.selectByColumn(Utility.tables.itemTags.name, Utility.tables.items.foreignKey, id).then(function (itemTags) {
+        Database.selectByColumn(Utility.tables.itemTags, Utility.tables.items.foreignKey, id).then(function (itemTags) {
             var tags = [];
             angular.forEach(self.tags, function (tag) {
-                var hasTag = $filter("filter")(self.tags, function (value, index, array) {
-                    return value[Utility.tables.foreignKey] == tag.Id;
-                }, true);
+                var hasTag = $filter("filter")(itemTags, function (itemTag, index, array) {
+                    return itemTag[Utility.tables.tags.foreignKey] == tag.Id;
+                }, true).length > 0;
                 tags.push({
+                    Id: tag.Id,
                     name: tag.Name,
-                    value: (hasTag.length > 0),
+                    value: hasTag,
+                    initialValue: hasTag,
                 });
             });
             deferred.resolve(tags);
@@ -84,7 +86,7 @@
 
         self.character = character;
         //Carico le borse
-        Database.selectByColumn(Utility.tables.bags.name, Utility.tables.characters.foreignKey, character.Id).then(function (bags) {
+        Database.selectByColumn(Utility.tables.bags, Utility.tables.characters.foreignKey, character.Id).then(function (bags) {
             var promises = [];
             angular.forEach(bags, function (bag) {
                 promises.push(self._loadBag(bag));
@@ -107,21 +109,55 @@
             bag.items.splice(index, 1);
         }
     };
+    self.removeItem = function (item) {
+        var deferred = $q.defer();
+        Database.removeById(Utility.tables.items, item.Id).then(function () {
+            Database.removeByColumn(Utility.tables.itemTags, Utility.tables.items.foreignKey, item.Id).then(function () {
+                var index = self.items.indexOf(item);
+                self.items.splice(index, 1);
+                angular.forEach(self.bags, function (bag) {
+                    var bagItems = $filter("filter")(bag.items, { Id: item.Id }, true);
+                    angular.forEach(bagItems, function (bagItem) {
+                        index = bag.items.indexOf(bagItem);
+                        if (index >= 0)
+                            bag.items.splice(index, 1);
+                    })
+                });
+                deferred.resolve();
+            });
+        });
+        return deferred.promise;
+    }
     self.addOrModifyItem = function (item) {
         var deferred = $q.defer();
-        //TODO salvare su db i tags e caricarli nelle tabelle corrette
-        Database.insertOrReplace(Utility.tables.items.name, item).then(function (result) {
+        var promises = [];
+        Database.insertOrReplace(Utility.tables.items, item).then(function (result) {
             item.Id = result.insertId;
             var oldItem = $filter("filter")(self.items, { Id: item.Id }, true);
             if (oldItem.length > 0) {
                 var index = self.items.indexOf(oldItem);
                 self.items.splice(index, 1);
-                var categoryIndex = self.categories[0].items.indexOf(item);
-                self.categories[0].items.splice(categoryIndex, 1);
             }
             self.items.push(item);
-            self.categories[0].items.push(item);
-            deferred.resolve();
+
+            //Salvo i tag su db
+            angular.forEach(item.tags, function (tag) {
+                if (tag.value != tag.initialValue) {
+                    if (tag.initialValue) {
+                        promises.push(Database.removeById(Utility.tables.itemTags, tag.Id));
+                    } else {
+                        var itemTag = {};
+                        itemTag.Id = -1;
+                        itemTag[Utility.tables.items.foreignKey] = item.Id;
+                        itemTag[Utility.tables.tags.foreignKey] = tag.Id;
+                        promises.push(Database.insertOrReplace(Utility.tables.itemTags, itemTag));
+                    }
+                }
+            })
+
+            $q.all(promises).then(function () {
+                deferred.resolve();
+            });
         });
         return deferred.promise;
     };
@@ -131,10 +167,11 @@
 
             category.isOpen = true;
 
-            var categoryItems = $filter("filter")(self.items, function (value, index, array) {
-                return value[Utility.tables.categories.foreignKey] == category.Id;
-            }, true);
-            category.items = categoryItems;
+            category.getItems = function () {
+                return $filter("filter")(self.items, function (value, index, array) {
+                    return value[Utility.tables.categories.foreignKey] == category.Id;
+                }, true);
+            };
         })
     };
     self._loadBag = function (bag) {
@@ -146,7 +183,7 @@
         bag.IsEquipped = bag.IsEquipped == 1;
         bag.IsMain = bag.IsMain == 1;
 
-        Database.selectByColumn(Utility.tables.bagItems.name, Utility.tables.bags.foreignKey, bag.Id).then(function (itemReferences) {
+        Database.selectByColumn(Utility.tables.bagItems, Utility.tables.bags.foreignKey, bag.Id).then(function (itemReferences) {
             angular.forEach(itemReferences, function (itemReference) {
                 var item = $filter("filter")(self.items, { Id: itemReference[Utility.tables.items.foreignKey] }, true);
                 if (item.length > 0) {

@@ -49,6 +49,11 @@
         },
         itemTags: {
             name: "Item_Tags",
+            columns: [
+                "Id",
+                "Item_Id",
+                "Tag_Id"
+            ]
         }
     }
 
@@ -87,10 +92,16 @@
                 onConfirm(quantity);
         })
     }
-    self.confirmDelete = function (quantity, name, onConfirm) {
+    self.confirmDeleteItemQuantity = function (quantity, name, onConfirm) {
+        self._confirm("Cancellazione", "Buttare " + quantity + " " + name + "?", onConfirm);
+    }
+    self.confirmDeleteItem = function (name, onConfirm) {
+        self._confirm("Cancellazione", "Eliminare " + name + " dall'inventario di tutti i personaggi?", onConfirm);
+    }
+    self._confirm = function (title, message, onConfirm) {
         $ionicPopup.confirm({
-            title: "Cancellazione",
-            template: "Buttare " + quantity + " " + name + "?"
+            title: title,
+            template: message
         }).then(function (result) {
             if (result) {
                 onConfirm();

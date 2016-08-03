@@ -17,25 +17,21 @@
         return deferred.promise;
     };
     self.selectAll = function (table) {
-        var query = "SELECT * FROM " + table;
+        var query = "SELECT * FROM " + table.name;
         return self._query(query);
     };
     self.selectByColumn = function (table, column, value) {
-        var query = "SELECT * FROM " + table + " WHERE " + column + " = ?";
+        var query = "SELECT * FROM " + table.name + " WHERE " + column + " = ?";
         return self._query(query, [value]);
     }
-    self.selectById = function (table, value) {
-        var deferred = $q.defer();
-        var query = "SELECT * FROM " + table + " WHERE Id = ?";
-        self._query(query, [value]).then(function (result) {
-            deferred.resolve(result[0]);
-        });
-        return deferred.promise;
+    self.selectById = function (table, id) {
+        var query = "SELECT * FROM " + table.name + " WHERE Id = ?";
+        return self._query(query, [id]);
     }
     self.insertOrReplace = function (table, element) {
         var deferred = $q.defer();
         self._getTableColumns(table).then(function (columns) {
-            var query = "INSERT OR REPLACE INTO " + table + " VALUES (";
+            var query = "INSERT OR REPLACE INTO " + table.name + " VALUES (";
             angular.forEach(columns, function (column) {
                 if (column == "Id" && element[column] == -1)
                     query += " NULL, ";
@@ -44,20 +40,28 @@
             })
             query = query.slice(0, -2);
             query += ")";
-            self._query(query).then(function (result) {
+            self._query(query, null, false).then(function (result) {
                 deferred.resolve(result);
             });
         })
         return deferred.promise;
     }
+    self.removeById = function (table, id) {
+        var query = "DELETE FROM " + table.name + " WHERE Id = ?";
+        return self._query(query, [id]);
+    }
+    self.removeByColumn = function (table, column, value) {
+        var query = "DELETE FROM " + table.name + " WHERE " + column + " = ?";
+        return self._query(query, [value]);
+    }
 
     //Metodi privati
-    self._getTableColumns = function (tableName) {
+    self._getTableColumns = function (table) {
         var deferred = $q.defer();
         if (Utility.isDebugging) {
-            deferred.resolve(Utility.tables[tableName.toLowerCase()].columns);
+            deferred.resolve(table.columns);
         } else {
-            var query = "PRAGMA table_info(" + tableName + ")";
+            var query = "PRAGMA table_info(" + table.name + ")";
             self._query(query).then(function (result) {
                 deferred.resolve(result);
             });
@@ -147,12 +151,15 @@
         return deferred.promise;
     };
     //Esegue una query su database
-    self._query = function (query, bindings) {
-        bindings = typeof bindings !== "undefined" ? bindings : [];
+    self._query = function (query, bindings, isQuery) {
         var deferred = $q.defer();
+        if (isQuery == undefined)
+            isQuery = true;
+
+        bindings = typeof bindings !== "undefined" ? bindings : [];
         self.db.transaction(function (transaction) {
             transaction.executeSql(query, bindings, function (transaction, result) {
-                if (result.rows.length > 0) {
+                if (isQuery) {
                     var output = [];
                     for (var i = 0; i < result.rows.length; i++) {
                         output.push(result.rows.item(i));

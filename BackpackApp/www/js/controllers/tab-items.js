@@ -73,10 +73,10 @@
             cancelText: "Annulla",
             destructiveText: item.IsCustom ? "Elimina" : "",
             destructiveButtonClicked: function () {
-                //TODO messaggio di conferma eliminazione oggetto e tutti i riferimenti in tutti i personaggi
-                //TODO eliminazione riferimenti in tutti i personaggi
-                //TODO salvataggio su database (fare metodo in oggetto session per eliminare oggetto custom)
                 hideMenu();
+                Utility.confirmDeleteItem(item.Name, function () {
+                    Session.removeItem(item);
+                });
             },
             buttonClicked: function (index) {
                 switch (index) {
@@ -96,7 +96,7 @@
             quantity = 1;
 
         if ($scope.getInventoryQuantity(item) >= quantity) {
-            Utility.confirmDelete(quantity, item.Name, function () {
+            Utility.confirmDeleteItemQuantity(quantity, item.Name, function () {
                 var mainBag = $filter("filter")(Session.bags, { IsMain: true }, true)[0];
                 var mainBagItem = $filter("filter")(mainBag.items, { Id: item.Id }, true);
                 if (mainBagItem.length > 0) {
