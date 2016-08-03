@@ -1,0 +1,40 @@
+﻿<ion-view view-title="Dettagli oggetto">
+    <ion-content ng-class="{'has-footer': isEdit}">
+        <div class="list">
+            <!--//TODO aggiungere immagine oggetto se presente-->
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Nome</span>
+                <input type="text" ng-model="item.Name" ng-disabled="!isEdit" />
+            </label>
+            <ion-item>
+                <h3>Categoria</h3>
+                <select ng-model="item.Category_Id" ng-options="category.Id as category.Name for category in categories" ng-disabled="!isEdit"></select>
+            </ion-item>
+            <ion-checkbox ng-model="item.IsUnidentified" ng-disabled="!isEdit">Non Identificato?</ion-checkbox>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Peso (Kg)</span>
+                <input type="number" ng-model="item.Weight" step="0.1" ng-disabled="!isEdit" />
+            </label>
+            <ion-item>
+                <h3>Descrizione</h3>
+                <textarea ng-model="item.Description" ng-disabled="!isEdit"></textarea>
+            </ion-item>
+            <ion-item>
+                <h3>Tags</h3>
+                <ion-list>
+                    <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'Name'" ng-model="tag.value" ng-disabled="!isEdit || !item.IsCustom">{{tag.name}}</ion-checkbox>
+                </ion-list>
+            </ion-item>
+            <ion-item>
+                <h3>Note</h3>
+                <textarea ng-model="item.Notes" ng-disabled="!isEdit"></textarea>
+            </ion-item>
+        </div>
+    </ion-content>
+    <ion-footer-bar class="footer-buttons" ng-show="isEdit">
+        <div class="buttons">
+            <button class="button button-stable" ui-sref="tabs.items">Annulla</button>
+            <button class="button button-balanced" ng-click="confirm()">Conferma</button>
+        </div>
+    </ion-footer-bar>
+</ion-view>

@@ -39,18 +39,18 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-sqlite-2": {
+    "cordova-plugin-file": {
         "source": {
             "type": "registry",
-            "id": "cordova-plugin-sqlite-2"
+            "id": "cordova-plugin-file@4.1.1"
         },
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-file": {
+    "cordova-plugin-sqlite-2": {
         "source": {
             "type": "registry",
-            "id": "cordova-plugin-file@~4.1.0"
+            "id": "cordova-plugin-sqlite-2@1.0.4"
         },
         "is_top_level": true,
         "variables": {}

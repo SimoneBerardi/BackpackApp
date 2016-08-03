@@ -1,12 +1,11 @@
 ﻿angular.module("backpack.services.database", [])
 
-.factory("Database", function ($q, $http, $log) {
+.factory("Database", function ($q, $http, $log, $filter, Utility) {
     var self = this;
 
     //Variabili
     self.dbName = "backpack.db";
     self.db = null;
-    self.tables = null,
 
     //Metodi pubblici
     self.init = function () {
@@ -26,26 +25,67 @@
         return self._query(query, [value]);
     }
     self.selectById = function (table, value) {
-        var query = "SELECT * FROM " + table + "WHERE Id = ?";
-        return self._query(query, [value]);
+        var deferred = $q.defer();
+        var query = "SELECT * FROM " + table + " WHERE Id = ?";
+        self._query(query, [value]).then(function (result) {
+            deferred.resolve(result[0]);
+        });
+        return deferred.promise;
+    }
+    self.insertOrReplace = function (table, element) {
+        var deferred = $q.defer();
+        self._getTableColumns(table).then(function (columns) {
+            var query = "INSERT OR REPLACE INTO " + table + " VALUES (";
+            angular.forEach(columns, function (column) {
+                if (column == "Id" && element[column] == -1)
+                    query += " NULL, ";
+                else
+                    query += "\"" + element[column] + "\", ";
+            })
+            query = query.slice(0, -2);
+            query += ")";
+            self._query(query).then(function (result) {
+                deferred.resolve(result);
+            });
+        })
+        return deferred.promise;
     }
 
     //Metodi privati
+    self._getTableColumns = function (tableName) {
+        var deferred = $q.defer();
+        if (Utility.isDebugging) {
+            deferred.resolve(Utility.tables[tableName.toLowerCase()].columns);
+        } else {
+            var query = "PRAGMA table_info(" + tableName + ")";
+            self._query(query).then(function (result) {
+                deferred.resolve(result);
+            });
+        }
+        return deferred.promise;
+    }
     self._loadDatabase = function () {
-        //return self._loadNativeDatabase();
-
-        //Debug
-        return self._loadBrowserDatabase();
+        if (Utility.isDebugging)
+            return self._loadBrowserDatabase();
+        else
+            return self._loadNativeDatabase();
     };
+    self._loadNativeDatabase = function () {
+        var deferred = $q.defer();
+        self._initializeNativeDatabase().then(function () {
+            self.db = sqlitePlugin.openDatabase(self.dbName, "1.0", "", 1);
+            deferred.resolve();
+        })
+        return deferred.promise;
+    }
     //Carica il database su browser
     self._loadBrowserDatabase = function () {
         var deferred = $q.defer();
 
-        self.db = window.openDatabase("backpack.db", "1.0", "database", -1);
-        self._createTables()
-            .then(function () {
-                deferred.resolve();
-            });
+        self.db = window.openDatabase(self.dbName, "1.0", "database", -1);
+        self._createTables().then(function () {
+            deferred.resolve();
+        });
 
         return deferred.promise;
     };
@@ -112,11 +152,14 @@
         var deferred = $q.defer();
         self.db.transaction(function (transaction) {
             transaction.executeSql(query, bindings, function (transaction, result) {
-                var output = [];
-                angular.forEach(result.rows, function (row) {
-                    output.push(row);
-                });
-                deferred.resolve(output);
+                if (result.rows.length > 0) {
+                    var output = [];
+                    for (var i = 0; i < result.rows.length; i++) {
+                        output.push(result.rows.item(i));
+                    }
+                    deferred.resolve(output);
+                } else
+                    deferred.resolve(result);
             }, function (transaction, error) {
                 $log.log("Errore in query: " + query);
                 $log.log(error.message);
@@ -126,11 +169,11 @@
         return deferred.promise;
     };
     //Carica il database su dispositivo se non presente
-    self._loadNativeDatabase = function () {
+    self._initializeNativeDatabase = function () {
         var deferred = $q.defer();
         var sourceFileName = cordova.file.applicationDirectory + "www/data/" + this.dbName;
         var targetDirName = cordova.file.dataDirectory;
-        return $q.all([
+        $q.all([
             self._getFile(sourceFileName),
             self._getFile(targetDirName),
         ]).then(function (files) {
@@ -138,10 +181,12 @@
             var targetDir = files[1];
             self._checkFile(targetDir, self.dbName).then(function () {
                 $log.log("Database already copied");
+                deferred.resolve();
             }, function () {
                 $log.log("Database not present, copying it");
                 self._copyFile(targetDir, sourceFile).then(function () {
                     $log.log("Database file copied!");
+                    deferred.resolve();
                 })
             });
         });

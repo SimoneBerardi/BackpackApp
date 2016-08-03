@@ -1,6 +1,6 @@
 ﻿angular.module("backpack.controllers.tabitems", [])
 
-.controller("TabItemsCtrl", function ($scope, $state, $filter, $ionicPopup, Loader, Session) {
+.controller("TabItemsCtrl", function ($scope, $state, $filter, $ionicPopup, $ionicActionSheet, Loader, Session, Utility) {
     $scope.categories = Session.categories;
 
     $scope.toggleCategory = function (category) {
@@ -21,13 +21,12 @@
         if (quantity == undefined)
             quantity = 1;
         var mainBag = $filter("filter")(Session.bags, { IsMain: true }, true)[0];
-        var oldItem = $filter("filter")(mainBag.items, { Id: item.Id, IsModified: false }, true);
+        var oldItem = $filter("filter")(mainBag.items, { Id: item.Id }, true);
         if (oldItem.length > 0)
             oldItem[0].Quantity += quantity;
         else {
             var bagItem = angular.merge({}, item);
             bagItem.Quantity = quantity;
-            bagItem.IsModified = false;
             mainBag.items.push(bagItem);
         }
     };
@@ -36,7 +35,6 @@
             min: 1,
         };
         var popup = $ionicPopup.show({
-            //template: "<input type='number' ng-model='quantity.value' min='1' />",
             templateUrl: "templates/popup/quantity.html",
             controller: "QuantityPopupCtrl",
             title: "Quantità da aggiungere?",
@@ -59,5 +57,74 @@
             if (quantity)
                 $scope.addItem(item, quantity);
         })
+    }
+    $scope.showDetails = function ($event, item, isEdit) {
+        if ($event)
+            $event.stopPropagation();
+        $state.go("tabs.items-item-detail", { itemId: item.Id, isEdit: isEdit })
+    }
+    $scope.showMenu = function (item) {
+        var hideMenu = $ionicActionSheet.show({
+            buttons: [
+                { text: "Aggiungi quantità" },
+                { text: item.IsCustom ? "Modifica" : "Nuovo" }
+            ],
+            titleText: "Azioni",
+            cancelText: "Annulla",
+            destructiveText: item.IsCustom ? "Elimina" : "",
+            destructiveButtonClicked: function () {
+                //TODO messaggio di conferma eliminazione oggetto e tutti i riferimenti in tutti i personaggi
+                //TODO eliminazione riferimenti in tutti i personaggi
+                //TODO salvataggio su database (fare metodo in oggetto session per eliminare oggetto custom)
+                hideMenu();
+            },
+            buttonClicked: function (index) {
+                switch (index) {
+                    case 0:
+                        $scope.addItemQuantity(item);
+                        break;
+                    case 1:
+                        $scope.showDetails(null, item, true);
+                        break;
+                }
+                hideMenu();
+            }
+        })
+    }
+    $scope.removeItem = function (item, quantity) {
+        if (quantity == undefined)
+            quantity = 1;
+
+        if ($scope.getInventoryQuantity(item) >= quantity) {
+            Utility.confirmDelete(quantity, item.Name, function () {
+                var mainBag = $filter("filter")(Session.bags, { IsMain: true }, true)[0];
+                var mainBagItem = $filter("filter")(mainBag.items, { Id: item.Id }, true);
+                if (mainBagItem.length > 0) {
+                    mainBagItem = mainBagItem[0];
+                    var itemQuantity = mainBagItem.Quantity;
+                    Session.removeBagItem(mainBag, item, Math.min(quantity, mainBagItem.Quantity));
+                    quantity -= itemQuantity;
+                }
+                var index = 0;
+                var bags = $filter("filter")(Session.bags, { IsMain: false }, true);
+                while (quantity > 0) {
+                    var bagItem = $filter("filter")(bags[index].items, { Id: item.Id }, true);
+                    if (bagItem.length > 0) {
+                        bagItem = bagItem[0];
+                        var itemQuantity = bagItem.Quantity;
+                        Session.removeBagItem(bags[index], item, Math.min(quantity, bagItem.Quantity))
+                        quantity -= itemQuantity;
+                    }
+                    index++;
+                }
+            })
+        }
+    }
+    $scope.removeItemQuantity = function (item) {
+        if ($scope.getInventoryQuantity(item) > 0) {
+            Utility.askQuantity($scope, "Quantità da buttare?", $scope.getInventoryQuantity(item), function (quantity) {
+                $scope.removeItem(item, quantity);
+            })
+        }
     }
 })

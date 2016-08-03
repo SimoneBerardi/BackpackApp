@@ -1,6 +1,6 @@
 ﻿angular.module("backpack.controllers.tabinventory", [])
 
-.controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, Loader, Session) {
+.controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, Loader, Session, Utility) {
     $scope.bags = Session.bags;
     $scope.isMultipleSelection = false;
 
@@ -78,50 +78,14 @@
         if (quantity == undefined)
             quantity = 1;
 
-        var popup = $ionicPopup.confirm({
-            title: "Cancellazione",
-            template: "Buttare " + quantity + " " + item.Name + "?"
-        });
-
-        popup.then(function (result) {
-            if (result) {
-                if (item.Quantity > quantity)
-                    item.Quantity -= quantity;
-                else {
-                    var index = bag.items.indexOf(item);
-                    bag.items.splice(index, 1);
-                }
-            }
-        });
+        Session.removeBagItemPopup(bag, item, quantity);
     }
     $scope.removeItemQuantity = function (bag, item) {
-        $scope.quantity = {
-            min: 1,
-            max: item.Quantity,
-        };
-        var popup = $ionicPopup.show({
-            //template: "<input type='number' value='1' ng-model='quantity.value' min='1' max ='" + item.Quantity + "' />",
-            templateUrl: "templates/popup/quantity.html",
-            controller: "QuantityPopupCtrl",
-            title: "Quantità da buttare?",
-            scope: $scope,
-            buttons: [
-                { text: "Annulla" },
-                {
-                    text: "<b>Conferma</b>",
-                    type: "button-positive",
-                    onTap: function (e) {
-                        if (!$scope.quantity.value)
-                            e.preventDefault();
-                        else
-                            return $scope.quantity.value;
-                    }
-                }
-            ]
+        Utility.askQuantity($scope, "Quantità da buttare?", item.Quantity, function (quantity) {
+            $scope.removeItem(bag, item, quantity);
         });
-        popup.then(function (quantity) {
-            if (quantity)
-                $scope.removeItem(bag, item, quantity);
-        })
+    }
+    $scope.showDetails = function (item) {
+        $state.go("tabs.inventory-item-detail", { itemId: item.Id })
     }
 })

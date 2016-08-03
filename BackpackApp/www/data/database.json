@@ -12,7 +12,7 @@
     },
     {
       "name": "Items",
-      "create": "CREATE TABLE 'Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Description' TEXT, 'Weight' REAL NOT NULL DEFAULT 0, 'Notes' TEXT, 'Image' TEXT, 'Category_Id' INTEGER, FOREIGN KEY('Category_Id') REFERENCES 'Categories'('Id') )",
+      "create": "CREATE TABLE 'Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Description' TEXT, 'Weight' REAL NOT NULL DEFAULT 0, 'Notes' TEXT, 'Image' TEXT, 'IsCustom' NUMERIC NOT NULL DEFAULT 0, 'IsUnidentified' NUMERIC NOT NULL DEFAULT 0, 'Category_Id' INTEGER, FOREIGN KEY('Category_Id') REFERENCES 'Categories'('Id') )",
       "data": "data/Items.txt"
     },
     {
@@ -22,12 +22,12 @@
     },
     {
       "name": "Tags",
-      "create": "CREATE TABLE IF NOT EXISTS 'Tags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Description' TEXT )",
-      "data": ""
+      "create": "CREATE TABLE IF NOT EXISTS 'Tags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Description' TEXT, 'IsCustom' NUMERIC NOT NULL DEFAULT 0 )",
+      "data": "data/Tags.txt"
     },
     {
       "name": "Bag_Items",
-      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'IsModified' NUMERIC NOT NULL DEFAULT 0, 'Notes' TEXT, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
+      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'Notes' TEXT, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
       "data": "data/Bag_Items.txt"
     },
     {

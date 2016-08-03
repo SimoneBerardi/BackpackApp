@@ -14,6 +14,7 @@ angular.module('starter', ['ionic',
     "backpack.controllers.tabcharacter",
     "backpack.controllers.tabinventory",
     "backpack.controllers.tabitems",
+    "backpack.controllers.itemdetail",
     //Services
     "backpack.services.utility",
     "backpack.services.loader",
@@ -35,6 +36,9 @@ angular.module('starter', ['ionic',
         if (window.StatusBar) {
             StatusBar.styleDefault();
         }
+        //IsDebugging
+        if (window.parent && window.parent.ripple)
+            Utility.isDebugging = true;
     });
 })
 
@@ -77,6 +81,24 @@ angular.module('starter', ['ionic',
             "tab-items": {
                 templateUrl: "templates/tab-items.html",
                 controller: "TabItemsCtrl"
+            }
+        }
+    })
+    .state("tabs.items-item-detail", {
+        url: "/detail/:itemId?isEdit",
+        views: {
+            "tab-items": {
+                templateUrl: "templates/item-detail.html",
+                controller: "ItemDetailCtrl"
+            }
+        }
+    })
+    .state("tabs.inventory-item-detail", {
+        url: "/detail/:itemId",
+        views: {
+            "tab-inventory": {
+                templateUrl: "templates/item-detail.html",
+                controller: "ItemDetailCtrl"
             }
         }
     })

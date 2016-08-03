@@ -1,5 +1,5 @@
 ﻿<ion-view view-title="Inventario">
-    <ion-content class="tab-inventory has-header has-footer">
+    <ion-content class="tab-inventory has-footer">
         <popup-quantity ng-model="ngModel"></popup-quantity>
         <ion-list class="table-list">
             <div ng-repeat="bag in bags">
@@ -23,7 +23,7 @@
                     Carico: {{getBagLoad(bag)}} / {{bag.Capacity}} Kg
                 </ion-item>
                 <!--<ion-item class="item item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen" on-hold="activateMultipleSelection(item)" ng-click="toggleItem(item)">-->
-                <ion-item class="item item-accordion bag-item" ng-repeat="item in bag.items" ng-show="bag.isOpen" on-hold="removeItemQuantity(bag, item)">
+                <ion-item class="item item-accordion bag-item" ng-repeat="item in bag.items" ng-show="bag.isOpen" ng-swipe-left="removeItem(item)" on-hold="removeItemQuantity(bag, item)" ng-click="showDetails(item)">
                     <div class="row">
                         <div class="col name">
                             {{item.Name}}

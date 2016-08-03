@@ -24,6 +24,31 @@
 .popup-quantity img {
   width: 100%; }
 
+.floating-button-list .list:last-child {
+  padding-bottom: 70px; }
+
+.button-float {
+  z-index: 12 !important;
+  position: absolute !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26) !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-transition: 0.2s linear !important;
+  transition: 0.2s linear !important;
+  -webkit-transition-property: -webkit-transform, all !important;
+  transition-property: transform, all !important; }
+
+.footer-buttons {
+  padding: 0; }
+  .footer-buttons .buttons {
+    width: 100%; }
+    .footer-buttons .buttons .button {
+      width: 50%;
+      font-size: 16pt; }
+
 .list .item .row {
   padding: 0; }
   .list .item .row .col {
@@ -70,7 +95,10 @@
   font-size: 16pt; }
 
 .tab-items .list .item.category-item .col.name {
-  font-size: 16pt; }
+  font-size: 16pt;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
 
 .tab-items .list .item.category-item .col.quantity {
   font-size: 14pt;

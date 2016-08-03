@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<widget id="com.ionicframework.ionicblankapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-  <name>ionic-blankapp</name>
+<widget id="com.obliviumapp.backpack" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>Backpack</name>
   <description>
-        An Ionic Framework and Cordova project.
+        Inventory manager (DnD 3.5)
     </description>
   <author email="you@example.com" href="http://example.com.com/">
-      Your Name Here
+      Simone Berardi
     </author>
   <content src="index.html" />
   <access origin="*" />
@@ -27,6 +27,12 @@
   <plugin name="cordova-plugin-whitelist" spec="~1.2.1" />
   <plugin name="cordova-plugin-statusbar" spec="~2.1.0" />
   <plugin name="ionic-plugin-keyboard" spec="~1.0.8" />
-  <plugin name="cordova-plugin-sqlite-2" version="1.0.4" />
   <plugin name="cordova-plugin-file" version="4.1.1" />
+  <preference name="Orientation" value="portrait" />
+  <preference name="Fullscreen" value="True" />
+  <plugin name="cordova-plugin-sqlite-2" version="1.0.4" />
+  <preference name="xwalkVersion" value="19+" />
+  <preference name="xwalkCommandLine" value="--disable-pull-to-refresh-effect" />
+  <preference name="xwalkMode" value="embedded" />
+  <preference name="xwalkMultipleApk" value="true" />
 </widget>

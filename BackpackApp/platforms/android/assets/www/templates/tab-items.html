@@ -1,6 +1,6 @@
 ﻿<ion-view view-title="Oggetti">
     <ion-content class="tab-items">
-        <ion-list class="table-list">
+        <ion-list class="table-list floating-button-list">
             <div ng-repeat="category in categories | orderBy:'Name'">
                 <ion-item class="item-stable category" ng-click="toggleCategory(category)" ng-class="{active:category.isOpen}">
                     <div class="row">
@@ -12,12 +12,15 @@
                         </div>
                     </div>
                 </ion-item>
-                <ion-item class="item item-accordion category-item" ng-repeat="item in category.items | orderBy:'Name'" ng-show="category.isOpen" ng-click="addItem(item)" on-hold="addItemQuantity(item)">
+                <ion-item class="item item-accordion category-item" ng-repeat="item in category.items | orderBy:'Name'" ng-show="category.isOpen" ng-click="addItem(item)" on-hold="showMenu(item)" ng-swipe-left="removeItem(item)">
                     <div class="row">
+                        <div class="col col-10 icon" ng-click="showDetails($event, item)">
+                            <i class="icon ion-information-circled"></i>
+                        </div>
                         <div class="col name">
                             {{item.Name}}
                         </div>
-                        <div class="col col-10 quantity balanced" ng-hide="getInventoryQuantity(item) == 0">
+                        <div class="col col-10 quantity" ng-hide="getInventoryQuantity(item) == 0">
                             {{getInventoryQuantity(item)}}
                         </div>
                         <div class="col col-20 weight">
@@ -28,4 +31,7 @@
             </div>
         </ion-list>
     </ion-content>
+    <button class="button button-assertive button-float" ng-click="showDetails(null, {Id: -1}, true)">
+        <i class="icon ion-plus"></i>
+    </button>
 </ion-view>

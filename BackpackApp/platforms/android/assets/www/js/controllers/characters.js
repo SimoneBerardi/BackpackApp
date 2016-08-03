@@ -1,14 +1,18 @@
 ﻿angular.module("backpack.controllers.characters", [])
 
-.controller("CharactersCtrl", function ($scope, $state, Loader, Session) {
-    if (!Session.isInitialized) {
-        Loader.show();
-        Session.init().then(function () {
+.controller("CharactersCtrl", function ($ionicPlatform, $scope, $state, Loader, Session) {
+    Loader.show();
+    $ionicPlatform.ready(function () {
+        if (!Session.isInitialized) {
+            Session.init().then(function () {
+                $scope.characters = Session.characters;
+                Loader.hide();
+            })
+        } else {
             $scope.characters = Session.characters;
             Loader.hide();
-        })
-    } else
-        $scope.characters = Session.characters;
+        }
+    })
 
     $scope.select = function (character) {
         Loader.show();

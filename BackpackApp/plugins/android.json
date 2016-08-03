@@ -8,25 +8,25 @@
     },
     "installed_plugins": {
         "cordova-plugin-device": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         },
         "cordova-plugin-console": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         },
         "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         },
         "cordova-plugin-statusbar": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         },
         "ionic-plugin-keyboard": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
-        },
-        "cordova-plugin-sqlite-2": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         },
         "cordova-plugin-file": {
-            "PACKAGE_NAME": "com.ionicframework.ionicblankapp"
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-sqlite-2": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         }
     },
     "dependent_plugins": {}
