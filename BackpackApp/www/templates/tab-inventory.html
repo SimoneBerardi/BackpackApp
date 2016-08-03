@@ -23,19 +23,22 @@
                     Carico: {{getBagLoad(bag)}} / {{bag.Capacity}} Kg
                 </ion-item>
                 <!--<ion-item class="item item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen" on-hold="activateMultipleSelection(item)" ng-click="toggleItem(item)">-->
-                <ion-item class="item item-accordion bag-item" ng-repeat="item in bag.items" ng-show="bag.isOpen" ng-swipe-left="removeItem(item)" on-hold="removeItemQuantity(bag, item)" ng-click="showDetails(item)">
+                <ion-item class="item item-accordion bag-item" ng-repeat="bagItem in bag.items" ng-show="bag.isOpen" ng-swipe-left="removeBagItem(bagItem)" on-hold="showItemMenu(bag, bagItem)" ng-click="showDetails(bagItem.item)">
                     <div class="row">
                         <div class="col name">
-                            {{item.Name}}
+                            {{bagItem.item.Name}}
+                        </div>
+                        <div class="col col-20 notes" ng-hide="bagItem.Notes == ''" ng-click="showNotes($event, bagItem)">
+                            <i class="icon ion-information-circled"></i>
                         </div>
                         <div class="col col-10 quantity">
-                            {{item.Quantity}}
+                            {{bagItem.Quantity}}
                         </div>
-                        <div class="col col-25 weight">
-                            {{getItemWeight(item)}} Kg
+                        <div class="col col-20 weight">
+                            {{getItemWeight(bagItem)}} Kg
                         </div>
                         <div class="col col-10" ng-show="isMultipleSelection">
-                            <input class="col-checkbox" type="checkbox" ng-model="item.isSelected" />
+                            <input class="col-checkbox" type="checkbox" ng-model="bagItem.item.isSelected" />
                         </div>
                     </div>
                 </ion-item>

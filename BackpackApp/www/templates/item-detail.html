@@ -25,10 +25,6 @@
                     <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'Name'" ng-model="tag.value" ng-disabled="!isEdit || !item.IsCustom">{{tag.name}}</ion-checkbox>
                 </ion-list>
             </ion-item>
-            <ion-item>
-                <h3>Note</h3>
-                <textarea ng-model="item.Notes" ng-disabled="!isEdit"></textarea>
-            </ion-item>
         </div>
     </ion-content>
     <ion-footer-bar class="footer-buttons" ng-show="isEdit">

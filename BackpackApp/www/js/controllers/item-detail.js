@@ -12,12 +12,11 @@
             Name: "Nuovo oggetto",
             Description: "",
             Weight: 0.0,
-            Notes: "",
             Image: "",
             IsCustom: true,
             IsUnidentified: false,
         };
-        $scope.item[Utility.tables.categories.foreignKey] = Session.categories[0].Id;
+        $scope.item[Utility.tables.Categories.foreignKey] = Session.categories[0].Id;
     } else {
         angular.copy(Session.getItem($scope.itemId), $scope.item);
     }

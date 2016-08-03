@@ -1,14 +1,14 @@
 ﻿angular.module("backpack.controllers.tabinventory", [])
 
-.controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, Loader, Session, Utility) {
+.controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, $ionicActionSheet, $ionicPopover, Loader, Session, Utility) {
     $scope.bags = Session.bags;
     $scope.isMultipleSelection = false;
 
     $scope.toggleBag = function (bag) {
         bag.isOpen = !bag.isOpen;
     };
-    $scope.getItemWeight = function (item) {
-        return item.Weight * item.Quantity;
+    $scope.getItemWeight = function (bagItem) {
+        return bagItem.item.Weight * bagItem.Quantity;
     };
     $scope.selectMainBag = function ($event, mainBag) {
         $event.stopPropagation();
@@ -26,9 +26,7 @@
         angular.forEach($scope.bags, function (bag) {
             load += bag.Weight;
             if (!bag.HasFixedWeight)
-                angular.forEach(bag.items, function (item) {
-                    load += (item.Quantity * item.Weight);
-                })
+                load += $scope.getBagLoad(bag);
         });
         return load;
     };
@@ -61,8 +59,8 @@
     }
     $scope.getBagLoad = function (bag) {
         var load = 0;
-        angular.forEach(bag.items, function (item) {
-            load += (item.Quantity * item.Weight);
+        angular.forEach(bag.items, function (bagItem) {
+            load += (bagItem.Quantity * bagItem.item.Weight);
         });
         return load;
     }
@@ -74,18 +72,74 @@
             className = "item-assertive";
         return className;
     }
-    $scope.removeItem = function (bag, item, quantity) {
+    $scope.removeBagItem = function (bag, bagItem, quantity) {
         if (quantity == undefined)
             quantity = 1;
 
-        Session.removeBagItemPopup(bag, item, quantity);
+        Session.removeBagItemPopup(bag, bagItem, quantity);
     }
-    $scope.removeItemQuantity = function (bag, item) {
-        Utility.askQuantity($scope, "Quantità da buttare?", item.Quantity, function (quantity) {
-            $scope.removeItem(bag, item, quantity);
+    $scope.removeBagItemQuantity = function (bag, bagItem) {
+        Utility.askQuantity($scope, "Quantità da buttare?", bagItem.Quantity, function (quantity) {
+            $scope.removeBagItem(bag, bagItem, quantity);
         });
     }
     $scope.showDetails = function (item) {
         $state.go("tabs.inventory-item-detail", { itemId: item.Id })
+    }
+    $scope.showItemMenu = function (bag, bagItem) {
+        var hideMenu = $ionicActionSheet.show({
+            buttons: [
+                { text: bagItem.Notes != "" ? "Modifica nota" : "Aggiungi nota" },
+                { text: "Rimuovi quantità" },
+            ],
+            titleText: "Azioni",
+            cancelText: "Annulla",
+            buttonClicked: function (index) {
+                switch (index) {
+                    case 0:
+                        $scope.modifyNote(bagItem);
+                        break;
+                    case 1:
+                        $scope.removeBagItemQuantity(bag, bagItem);
+                        break;
+                }
+                hideMenu();
+            }
+        })
+    }
+    $scope.modifyNote = function (bagItem) {
+        $scope.notes = {
+            value: bagItem.Notes,
+        };
+        $ionicPopup.show({
+            template: "<input type='text' ng-model='notes.value'>",
+            title: bagItem.Name + " - Note",
+            scope: $scope,
+            buttons: [
+                { text: "Annulla" },
+                {
+                    text: "<b> Conferma </b>",
+                    type: "button-positive",
+                    onTap: function (e) {
+                        if (!$scope.notes.value)
+                            e.preventDefault();
+                        else
+                            return $scope.notes.value;
+                    }
+                }
+            ]
+        }).then(function (notes) {
+            if (notes)
+                Session.addBagItemNotes(bagItem, notes);
+        })
+    }
+    $scope.showNotes = function ($event, item) {
+        $event.stopPropagation();
+        $scope.item = item;
+        $ionicPopover.fromTemplateUrl("templates/popover/notes.html", {
+            scope: $scope
+        }).then(function (popover) {
+            popover.show($event);
+        })
     }
 })

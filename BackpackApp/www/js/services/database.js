@@ -29,22 +29,16 @@
         return self._query(query, [id]);
     }
     self.insertOrReplace = function (table, element) {
-        var deferred = $q.defer();
-        self._getTableColumns(table).then(function (columns) {
-            var query = "INSERT OR REPLACE INTO " + table.name + " VALUES (";
-            angular.forEach(columns, function (column) {
-                if (column == "Id" && element[column] == -1)
-                    query += " NULL, ";
-                else
-                    query += "\"" + element[column] + "\", ";
-            })
-            query = query.slice(0, -2);
-            query += ")";
-            self._query(query, null, false).then(function (result) {
-                deferred.resolve(result);
-            });
+        var query = "INSERT OR REPLACE INTO " + table.name + " VALUES (";
+        angular.forEach(table.columns, function (column) {
+            if (column == "Id" && element[column] == -1)
+                query += " NULL, ";
+            else
+                query += "\"" + element[column] + "\", ";
         })
-        return deferred.promise;
+        query = query.slice(0, -2);
+        query += ")";
+        return self._query(query, null, false);
     }
     self.removeById = function (table, id) {
         var query = "DELETE FROM " + table.name + " WHERE Id = ?";
@@ -75,6 +69,7 @@
             return self._loadNativeDatabase();
     };
     self._loadNativeDatabase = function () {
+        //TODO caricare le tabelle tramite query su db
         var deferred = $q.defer();
         self._initializeNativeDatabase().then(function () {
             self.db = sqlitePlugin.openDatabase(self.dbName, "1.0", "", 1);
@@ -129,9 +124,14 @@
         var promises = [];
         if (table.data != "")
             $http.get(table.data).success(function (data) {
-                var lines = data.split("\n");
+                var lines = data.split("\r\n");
                 var columns = lines[0];
                 lines.splice(0, 1);
+                Utility.tables[table.name] = {
+                    name: table.name,
+                    foreignKey: table.foreignKey,
+                    columns: columns.split(","),
+                }
                 angular.forEach(lines, function (line) {
                     var query = "INSERT OR REPLACE INTO " + table.name + " (" + columns + ") VALUES(";
                     angular.forEach(line.split(","), function (cell) {
