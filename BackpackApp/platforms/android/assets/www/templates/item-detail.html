@@ -10,7 +10,7 @@
                 <h3>Categoria</h3>
                 <select ng-model="item.Category_Id" ng-options="category.Id as category.Name for category in categories" ng-disabled="!isEdit"></select>
             </ion-item>
-            <ion-checkbox ng-model="item.IsUnidentified" ng-disabled="!isEdit">Non Identificato?</ion-checkbox>
+            <ion-checkbox ng-model="item.IsUnidentified" ng-true-value="1" ng-false-value="0" ng-disabled="!isEdit">Non Identificato?</ion-checkbox>
             <label class="item item-input item-stacked-label">
                 <span class="input-label">Peso (Kg)</span>
                 <input type="number" ng-model="item.Weight" step="0.1" ng-disabled="!isEdit" />
@@ -22,7 +22,7 @@
             <ion-item>
                 <h3>Tags</h3>
                 <ion-list>
-                    <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'Name'" ng-model="tag.value" ng-disabled="!isEdit || !item.IsCustom">{{tag.name}}</ion-checkbox>
+                    <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'Name'" ng-model="tag.value" ng-disabled="!isEdit || item.IsCustom == 0">{{tag.name}}</ion-checkbox>
                 </ion-list>
             </ion-item>
         </div>

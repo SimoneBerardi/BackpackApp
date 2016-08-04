@@ -1,6 +1,6 @@
 ﻿angular.module("backpack.controllers.tabinventory", [])
 
-.controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, $ionicActionSheet, $ionicPopover, Loader, Session, Utility) {
+.controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, $ionicActionSheet, $ionicPopover, $filter, Loader, Session, Utility) {
     $scope.bags = Session.bags;
     $scope.isMultipleSelection = false;
 
@@ -12,20 +12,24 @@
     };
     $scope.selectMainBag = function ($event, mainBag) {
         $event.stopPropagation();
-        if (!mainBag.IsMain) {
+        if (mainBag.IsMain == 0) {
             $event.preventDefault();
             mainBag.IsMain = true;
         } else
-            angular.forEach($scope.bags, function (bag) {
-                if (bag.Id != mainBag.Id && bag.IsMain)
-                    bag.IsMain = false;
+            Session.addOrModifyBag(mainBag).then(function () {
+                angular.forEach($scope.bags, function (bag) {
+                    if (bag.Id != mainBag.Id && bag.IsMain == 1) {
+                        bag.IsMain = 0;
+                        Session.addOrModifyBag(bag);
+                    }
+                })
             })
     };
     $scope.getLoad = function () {
         var load = 0;
         angular.forEach($scope.bags, function (bag) {
             load += bag.Weight;
-            if (!bag.HasFixedWeight)
+            if (bag.HasFixedWeight == 0)
                 load += $scope.getBagLoad(bag);
         });
         return load;
@@ -38,6 +42,8 @@
             className = "bar-energized";
         else if ($scope.getLoad() < Session.character.load.Heavy)
             className = "bar-assertive";
+        else
+            className = "bar-dark";
         return className;
     };
     $scope.activateMultipleSelection = function (item) {
@@ -76,31 +82,45 @@
         if (quantity == undefined)
             quantity = 1;
 
-        Session.removeBagItemPopup(bag, bagItem, quantity);
+        Utility.confirmRemoveItemQuantity(quantity, bagItem.item.Name, function () {
+            Session.removeBagItem(bagItem, quantity);
+        })
     }
     $scope.removeBagItemQuantity = function (bag, bagItem) {
         Utility.askQuantity($scope, "Quantità da buttare?", bagItem.Quantity, function (quantity) {
             $scope.removeBagItem(bag, bagItem, quantity);
         });
     }
-    $scope.showDetails = function (item) {
-        $state.go("tabs.inventory-item-detail", { itemId: item.Id })
-    }
     $scope.showItemMenu = function (bag, bagItem) {
+        var buttons = [
+            { text: "Dettagli" },
+            { text: "Modifica nota" },
+            { text: "Rimuovi quantità" },
+        ];
+        if ($scope.bags.length > 1) {
+            buttons.push({ text: "Sposta" });
+            buttons.push({ text: "Sposta quantità" });
+        }
         var hideMenu = $ionicActionSheet.show({
-            buttons: [
-                { text: bagItem.Notes != "" ? "Modifica nota" : "Aggiungi nota" },
-                { text: "Rimuovi quantità" },
-            ],
+            buttons: buttons,
             titleText: "Azioni",
             cancelText: "Annulla",
             buttonClicked: function (index) {
                 switch (index) {
                     case 0:
-                        $scope.modifyNote(bagItem);
+                        $state.go("tabs.inventory-item-detail", { itemId: bagItem.item.Id })
                         break;
                     case 1:
+                        $scope.modifyNote(bagItem);
+                        break;
+                    case 2:
                         $scope.removeBagItemQuantity(bag, bagItem);
+                        break;
+                    case 3:
+                        $scope.moveBagItemBag(bag, bagItem);
+                        break;
+                    case 4:
+                        $scope.moveBagItemBagQuantity(bag, bagItem);
                         break;
                 }
                 hideMenu();
@@ -140,6 +160,76 @@
             scope: $scope
         }).then(function (popover) {
             popover.show($event);
+        })
+    }
+    $scope.moveBagItem = function (sourceBag, destBag, bagItem, quantity) {
+        if (quantity == undefined)
+            quantity = 1;
+
+        Session.moveBagItem(sourceBag, destBag, bagItem, quantity);
+    }
+    $scope.toggleEquipped = function (bag, bagItem) {
+        if ($scope.bags.length > 1) {
+            var destBag;
+            if (bag.IsEquipped == 1)
+                if (bag.IsMain == 1)
+                    destBag = $scope.bags[1];
+                else
+                    destBag = $filter("filter")($scope.bags, { IsMain: 1 }, true)[0];
+            else
+                destBag = $filter("filter")($scope.bags, { IsEquipped: 1 }, true)[0];
+            $scope.moveBagItem(bag, destBag, bagItem);
+        } else {
+            $ionicPopup.alert({
+                title: "Attenzione!",
+                template: "Non sono presenti borse!"
+            })
+        }
+    }
+    $scope.moveBagItemBag = function (bag, bagItem, quantity) {
+        if (quantity == undefined)
+            quantity = 1;
+        var list = [];
+        angular.forEach($scope.bags, function (listBag) {
+            if (bag.Id != listBag.Id && listBag.IsEquipped == 0)
+                list.push(angular.copy(listBag));
+        })
+        Utility.selectFromList($scope, "Seleziona la borsa", list, function (select) {
+            var destBag = $filter("filter")($scope.bags, { Id: select.Id }, true)[0];
+            $scope.moveBagItem(bag, destBag, bagItem, quantity);
+        })
+    }
+    $scope.moveBagItemBagQuantity = function (bag, bagItem) {
+        Utility.askQuantity($scope, "Quantità da spostare?", bagItem.Quantity, function (quantity) {
+            $scope.moveBagItemBag(bag, bagItem, quantity);
+        });
+    }
+    $scope.showBagMenu = function (bag) {
+        var hideMenu = $ionicActionSheet.show({
+            buttons: [
+                { text: "Nuovo" },
+                { text: "Modifica" },
+            ],
+            titleText: "Azioni",
+            cancelText: "Annulla",
+            destructiveText: bag.IsEquipped == 0 ? "" : "Elimina",
+            destructiveButtonClicked: function () {
+                hideMenu();
+                Utility.confirmDeleteBag(bag.Name, function () {
+                    Session.deleteBag(bag);
+                });
+            },
+            buttonClicked: function (index) {
+                switch (index) {
+                    case 0:
+                        $state.go("tabs.bag-detail", { bagId: -1 })
+                        break;
+                    case 1:
+                        $state.go("tabs.bag-detail", { bagId: bag.Id })
+                        break;
+                }
+                hideMenu();
+            }
         })
     }
 })

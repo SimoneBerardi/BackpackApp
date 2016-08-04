@@ -23,17 +23,10 @@
             return Database.selectAll(Utility.tables.Characters);
         }).then(function (characters) {
             //Carico i personaggi
-            angular.forEach(characters, function (character) {
-                character.sizeName = Utility.sizes[character.Size];
-            });
             self.characters = characters;
             //Carico gli oggetti
             return Database.selectAll(Utility.tables.Items);
         }).then(function (items) {
-            angular.forEach(items, function (item) {
-                item.IsCustom = item.IsCustom == 1;
-                item.IsUnidentified = item.IsUnidentified == 1;
-            })
             self.items = items;
             //Carico le categorie degli oggetti
             return Database.selectAll(Utility.tables.Categories);
@@ -51,15 +44,42 @@
         });
         return deferred.promise;
     };
+    self.selectCharacter = function (character) {
+        var deferred = $q.defer();
+        self.character = null;
+        self.bags.splice(0, self.bags.length);
+
+        var load = $filter("filter")(self.loads, { Strength: character.Strength }, true)[0];
+        character.load = load;
+
+        self.character = character;
+        //Carico le borse
+        Database.selectByColumn(Utility.tables.Character_Bags, Utility.tables.Characters.foreignKey, character.Id).then(function (bags) {
+            var promises = [];
+            angular.forEach(bags, function (bag) {
+                promises.push(self._loadBag(bag));
+            });
+            $q.all(promises).then(function () {
+                angular.merge(self.bags, bags);
+                deferred.resolve();
+            });
+        });
+
+        return deferred.promise;
+    };
+
+
+    //---Metodi di utility---
+    self.getCharacter = function (id) {
+        return $filter("filter")(self.characters, { Id: id }, true)[0];
+    }
+    self.getCharacterSize = function () {
+        return $filter("filter")(Utility.sizes, { id: self.character.Size }, true)[0].name;
+    };
     self.getBagItem = function (bag, item) {
         return $filter("filter")(bag.items, function (bagItem, index, array) {
             return bagItem[Utility.tables.Items.foreignKey] == item.Id;
         }, true);
-    };
-    self.removeBagItemPopup = function (bag, bagItem, quantity) {
-        Utility.confirmDeleteItemQuantity(quantity, bagItem.item.Name, function () {
-            self.removeBagItem(bag, bagItem, quantity);
-        })
     };
     self.getItemTags = function (id) {
         var deferred = $q.defer();
@@ -83,28 +103,121 @@
     self.getItem = function (id) {
         return $filter("filter")(self.items, { Id: id }, true)[0];
     };
-    self.selectCharacter = function (character) {
+    self.getBagItemBag = function (bagItem) {
+        return $filter("filter")(self.bags, { Id: bagItem[Utility.tables.Character_Bags.foreignKey] }, true)[0];
+    };
+    self.getBag = function (id) {
+        return $filter("filter")(self.bags, { Id: id }, true)[0];
+    };
+
+
+    //---Metodi database---
+    //Character
+    self.deleteCharacter = function (character) {
         var deferred = $q.defer();
+        Database.deleteById(Utility.tables.Characters, character.Id).then(function () {
+            Database.selectByColumn(Utility.tables.Character_Bags, Utility.tables.Characters.foreignKey, character.Id).then(function (bags) {
+                var promises = [];
+                angular.forEach(bags, function (bag) {
+                    promises.push(Database.deleteBycolumn(Utility.tables.Bag_Items, Utility.tables.Character_Bags.foreignKey, bag.Id));
+                })
 
-        var load = $filter("filter")(self.loads, { Strength: character.Strength }, true)[0];
-        character.load = load;
-
-        self.character = character;
-        //Carico le borse
-        Database.selectByColumn(Utility.tables.Character_Bags, Utility.tables.Characters.foreignKey, character.Id).then(function (bags) {
-            var promises = [];
-            angular.forEach(bags, function (bag) {
-                promises.push(self._loadBag(bag));
-            });
-            $q.all(promises).then(function () {
-                self.bags = bags;
+                $q.all(promises).then(function () {
+                    Database.deleteBycolumn(Utility.tables.Character_Bags, Utility.tables.Characters.foreignKey, character.Id).then(function () {
+                        var index = self.characters.indexOf(character);
+                        self.characters.splice(index, 1);
+                        deferred.resolve();
+                    });
+                })
+            })
+        });
+        return deferred.promise;
+    };
+    self.addOrModifyCharacter = function (character) {
+        var deferred = $q.defer();
+        Database.insertOrReplace(Utility.tables.Characters, character).then(function (result) {
+            character.Id = result.insertId;
+            var oldCharacter = self.getCharacter(character.Id);
+            if (oldCharacter != undefined) {
+                angular.merge(oldCharacter, character);
+                deferred.resolve();
+            }
+            else {
+                var equippedBag = {
+                    Id: -1,
+                    Name: "Equipaggiato",
+                    Capacity: 0.0,
+                    Weight: 0.0,
+                    HasFixedWeight: 0,
+                    IsEquipped: 1,
+                    IsMain: 0,
+                    Image: "",
+                }
+                equippedBag[Utility.tables.Characters.foreignKey] = character.Id;
+                var mainBag = {
+                    Id: -1,
+                    Name: "Zaino",
+                    Capacity: 0.0,
+                    Weight: 2.5,
+                    HasFixedWeight: 0,
+                    IsEquipped: 0,
+                    IsMain: 1,
+                    Image: "",
+                }
+                mainBag[Utility.tables.Characters.foreignKey] = character.Id;
+                self.addOrModifyBag(equippedBag, character).then(function () {
+                    return self.addOrModifyBag(mainBag, character);
+                }).then(function () {
+                    self.characters.push(character);
+                    deferred.resolve();
+                });
+            }
+        });
+        return deferred.promise;
+    };
+    //Bag
+    self.deleteBag = function (bag) {
+        var deferred = $q.defer();
+        Database.deleteById(Utility.tables.Character_Bags, bag.Id).then(function () {
+            Database.deleteBycolumn(Utility.tables.Bag_Items, Utility.tables.Character_Bags.foreignKey, bag.Id).then(function () {
+                var index = self.bags.indexOf(bag);
+                self.bags.splice(index, 1);
+                if (bag.IsMain == 1 && self.bags.length > 0) {
+                    self.bags[index - 1].IsMain = 1;
+                }
                 deferred.resolve();
             });
         });
-
         return deferred.promise;
     };
-    //---Metodi database---
+    self.addOrModifyBag = function (bag, character) {
+        if (character == undefined)
+            character = self.character;
+        var deferred = $q.defer();
+        bag[Utility.tables.Characters.foreignKey] = character.Id,
+        Database.insertOrReplace(Utility.tables.Character_Bags, bag).then(function (result) {
+            bag.Id = result.insertId;
+            var oldBag = self.getBag(bag.Id);
+            if (oldBag != undefined)
+                angular.merge(oldBag, bag);
+            else {
+                bag.items = [];
+                self.bags.push(bag);
+            }
+            deferred.resolve();
+        });
+        return deferred.promise;
+    };
+    //BagItem
+    self.moveBagItem = function (sourceBag, destBag, bagItem, quantity) {
+        var deferred = $q.defer();
+        self.removeBagItem(bagItem, quantity).then(function () {
+            self.addBagItem(destBag, bagItem.item, quantity).then(function () {
+                deferred.resolve();
+            })
+        })
+        return deferred.promise;
+    };
     self.addBagItemNotes = function (bagItem, notes) {
         bagItem.Notes = notes;
         return Database.insertOrReplace(Utility.tables.Bag_Items, bagItem);
@@ -135,8 +248,8 @@
             deferred.resolve();
         });
         return deferred.promise;
-    }
-    self.removeBagItem = function (bag, bagItem, quantity) {
+    };
+    self.removeBagItem = function (bagItem, quantity) {
         var deferred = $q.defer();
         if (bagItem.Quantity > quantity) {
             bagItem.Quantity -= quantity;
@@ -145,26 +258,29 @@
             });
         }
         else {
-            Database.removeById(Utility.tables.Bag_Items, bagItem.Id).then(function (result) {
+            Database.deleteById(Utility.tables.Bag_Items, bagItem.Id).then(function (result) {
+                var bag = self.getBagItemBag(bagItem);
                 var index = bag.items.indexOf(bagItem);
                 bag.items.splice(index, 1);
+                deferred.resolve();
             })
         }
         return deferred.promise;
     };
-    self.removeItem = function (item) {
+    //Item
+    self.deleteItem = function (item) {
         var deferred = $q.defer();
-        Database.removeById(Utility.tables.Items, item.Id).then(function () {
-            Database.removeByColumn(Utility.tables.Item_Tags, Utility.tables.Items.foreignKey, item.Id).then(function () {
+        Database.deleteById(Utility.tables.Items, item.Id).then(function () {
+            Database.deleteBycolumn(Utility.tables.Item_Tags, Utility.tables.Items.foreignKey, item.Id).then(function () {
                 var index = self.items.indexOf(item);
                 self.items.splice(index, 1);
                 angular.forEach(self.bags, function (bag) {
-                    var bagItems = $filter("filter")(bag.items, { Id: item.Id }, true);
-                    angular.forEach(bagItems, function (bagItem) {
+                    var bagItem = self.getBagItem(bag, item);
+                    if (bagItem.length > 0) {
+                        bagItem = bagItem[0];
                         index = bag.items.indexOf(bagItem);
-                        if (index >= 0)
-                            bag.items.splice(index, 1);
-                    })
+                        bag.items.splice(index, 1);
+                    }
                 });
                 deferred.resolve();
             });
@@ -176,8 +292,8 @@
         var promises = [];
         Database.insertOrReplace(Utility.tables.Items, item).then(function (result) {
             item.Id = result.insertId;
-            var oldItem = $filter("filter")(self.items, { Id: item.Id }, true);
-            if (oldItem.length > 0)
+            var oldItem = self.getItem(item.Id);
+            if (oldItem != undefined)
                 angular.merge(oldItem, item);
             else
                 self.items.push(item);
@@ -186,7 +302,7 @@
             angular.forEach(item.tags, function (tag) {
                 if (tag.value != tag.initialValue) {
                     if (tag.initialValue) {
-                        promises.push(Database.removeById(Utility.tables.Item_Tags, tag.Id));
+                        promises.push(Database.deleteById(Utility.tables.Item_Tags, tag.Id));
                     } else {
                         var itemTag = {};
                         itemTag.Id = -1;
@@ -203,6 +319,8 @@
         });
         return deferred.promise;
     };
+
+
     //---Metodi privati---
     self._loadCategories = function (categories) {
         angular.forEach(categories, function (category) {
@@ -221,9 +339,6 @@
 
         bag.items = [];
         bag.isOpen = true;
-        bag.HasFixedWeight = bag.HasFixedWeight == 1;
-        bag.IsEquipped = bag.IsEquipped == 1;
-        bag.IsMain = bag.IsMain == 1;
 
         Database.selectByColumn(Utility.tables.Bag_Items, Utility.tables.Character_Bags.foreignKey, bag.Id).then(function (itemReferences) {
             angular.forEach(itemReferences, function (itemReference) {

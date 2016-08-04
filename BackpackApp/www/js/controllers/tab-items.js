@@ -20,7 +20,7 @@
     $scope.addBagItem = function (item, quantity) {
         if (quantity == undefined)
             quantity = 1;
-        var mainBag = $filter("filter")(Session.bags, { IsMain: true }, true)[0];
+        var mainBag = $filter("filter")(Session.bags, { IsMain: 1 }, true)[0];
         Session.addBagItem(mainBag, item, quantity);
     };
     $scope.addBagItemQuantity = function (item) {
@@ -31,12 +31,15 @@
     $scope.showDetails = function ($event, item, isEdit) {
         if ($event)
             $event.stopPropagation();
-        $state.go("tabs.items-item-detail", { itemId: item.Id, isEdit: isEdit })
+        $state.go("tabs.items-item-detail", { itemId: item.Id, isEdit: isEdit });
+    }
+    $scope.addItem = function () {
+        $state.go("tabs.items-item-detail", { itemId: -1, isEdit: true });
     }
     $scope.showMenu = function (item) {
         var buttons = [
             { text: "Aggiungi quantità" },
-            { text: item.IsCustom ? "Modifica" : "Nuovo" },
+            { text: item.IsCustom == 1 ? "Modifica" : "Nuovo" },
         ];
         if ($scope.getInventoryQuantity(item) > 0)
             buttons.push({ text: "Rimuovi quantità" });
@@ -45,11 +48,11 @@
             buttons: buttons,
             titleText: "Azioni",
             cancelText: "Annulla",
-            destructiveText: item.IsCustom ? "Elimina" : "",
+            destructiveText: item.IsCustom == 1 ? "Elimina" : "",
             destructiveButtonClicked: function () {
                 hideMenu();
                 Utility.confirmDeleteItem(item.Name, function () {
-                    Session.removeItem(item);
+                    Session.deleteItem(item);
                 });
             },
             buttonClicked: function (index) {
@@ -73,23 +76,23 @@
             quantity = 1;
 
         if ($scope.getInventoryQuantity(item) >= quantity) {
-            Utility.confirmDeleteItemQuantity(quantity, item.Name, function () {
-                var mainBag = $filter("filter")(Session.bags, { IsMain: true }, true)[0];
+            Utility.confirmRemoveItemQuantity(quantity, item.Name, function () {
+                var mainBag = $filter("filter")(Session.bags, { IsMain: 1 }, true)[0];
                 var bagItem = Session.getBagItem(mainBag, item);
                 if (bagItem.length > 0) {
                     bagItem = bagItem[0];
                     var quantityToRemove = Math.min(quantity, bagItem.Quantity);
-                    Session.removeBagItem(mainBag, item, quantityToRemove);
+                    Session.removeBagItem(bagItem, quantityToRemove);
                     quantity -= quantityToRemove;
                 }
                 var index = 0;
-                var bags = $filter("filter")(Session.bags, { IsMain: false }, true);
+                var bags = $filter("filter")(Session.bags, { IsMain: 0 }, true);
                 while (quantity > 0) {
                     bagItem = Session.getBagItem(bags[index], item);
                     if (bagItem.length > 0) {
                         bagItem = bagItem[0];
                         var quantityToRemove = Math.min(quantity, bagItem.Quantity);
-                        Session.removeBagItem(bags[index], item, quantityToRemove)
+                        Session.removeBagItem(bagItem, quantityToRemove)
                         quantity -= quantityToRemove;
                     }
                     index++;

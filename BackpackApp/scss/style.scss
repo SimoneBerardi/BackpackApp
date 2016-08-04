@@ -44,18 +44,22 @@
 }
 
 .button-float {
-    z-index: 12 !important;
-    position: absolute !important;
-    bottom: 10px !important;
-    right: 10px !important;
-    border-radius: 50% !important;
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26) !important;
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-transition: 0.2s linear !important;
-    transition: 0.2s linear !important;
-    -webkit-transition-property: -webkit-transform, all !important;
-    transition-property: transform, all !important;
+    z-index: 12;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-transition: 0.2s linear;
+    transition: 0.2s linear;
+    -webkit-transition-property: -webkit-transform, all;
+    transition-property: transform, all;
+
+    &.high-float {
+        bottom: 60px;
+    }
 }
 
 .footer-buttons {

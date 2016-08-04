@@ -40,11 +40,11 @@
         query += ")";
         return self._query(query, null, false);
     }
-    self.removeById = function (table, id) {
+    self.deleteById = function (table, id) {
         var query = "DELETE FROM " + table.name + " WHERE Id = ?";
         return self._query(query, [id]);
     }
-    self.removeByColumn = function (table, column, value) {
+    self.deleteBycolumn = function (table, column, value) {
         var query = "DELETE FROM " + table.name + " WHERE " + column + " = ?";
         return self._query(query, [value]);
     }

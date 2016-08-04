@@ -14,7 +14,7 @@
                 </ion-item>
                 <ion-item class="item item-accordion category-item" ng-repeat="item in category.getItems() | orderBy:'Name'" ng-show="category.isOpen" ng-click="addBagItem(item)" on-hold="showMenu(item)" ng-swipe-left="removeBagItem(item)">
                     <div class="row">
-                        <div class="col col-10 icon" ng-click="showDetails($event, item)">
+                        <div class="col col-10 icon" ng-click="showDetails($event, item, false)">
                             <i class="icon ion-information-circled"></i>
                         </div>
                         <div class="col name">
@@ -31,7 +31,7 @@
             </div>
         </ion-list>
     </ion-content>
-    <button class="button button-assertive button-float" ng-click="showDetails(null, {Id: -1}, true)">
+    <button class="button button-assertive button-float high-float" ng-click="addItem()">
         <i class="icon ion-plus"></i>
     </button>
 </ion-view>

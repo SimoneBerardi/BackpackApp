@@ -13,8 +13,8 @@
             Description: "",
             Weight: 0.0,
             Image: "",
-            IsCustom: true,
-            IsUnidentified: false,
+            IsCustom: 1,
+            IsUnidentified: 0,
         };
         $scope.item[Utility.tables.Categories.foreignKey] = Session.categories[0].Id;
     } else {
@@ -26,9 +26,9 @@
         Loader.hide();
     })
     if ($scope.item.Id > -1 && $scope.isEdit) {
-        if (!$scope.item.IsCustom) {
+        if ($scope.item.IsCustom == 0) {
             $scope.item.Id = -1;
-            $scope.item.IsCustom = true;
+            $scope.item.IsCustom = 1;
         }
     }
 

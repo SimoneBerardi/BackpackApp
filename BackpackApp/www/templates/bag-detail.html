@@ -1,0 +1,26 @@
+﻿<ion-view view-title="Dettagli borsa">
+    <ion-content class="has-footer">
+        <div class="list">
+            <!--//TODO aggiungere immagine borsa se presente-->
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Nome</span>
+                <input type="text" ng-model="bag.Name" />
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Peso (Kg)</span>
+                <input type="number" ng-model="bag.Weight" step="0.1" />
+            </label>
+            <ion-checkbox ng-model="bag.HasFixedWeight" ng-true-value="1" ng-false-value="0">Peso fisso?</ion-checkbox>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Capacità (Kg)</span>
+                <input type="number" ng-model="bag.Capacity" step="0.1" ng-disabled="bag.HasFixedWeight == 0" />
+            </label>
+        </div>
+    </ion-content>
+    <ion-footer-bar class="footer-buttons">
+        <div class="buttons">
+            <button class="button button-stable" ui-sref="tabs.inventory">Annulla</button>
+            <button class="button button-balanced" ng-click="confirm()">Conferma</button>
+        </div>
+    </ion-footer-bar>
+</ion-view>

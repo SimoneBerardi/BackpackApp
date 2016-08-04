@@ -15,6 +15,9 @@ angular.module('starter', ['ionic',
     "backpack.controllers.tabinventory",
     "backpack.controllers.tabitems",
     "backpack.controllers.itemdetail",
+    "backpack.controllers.bagdetail",
+    "backpack.controllers.application",
+    "backpack.controllers.characterdetail",
     //Services
     "backpack.services.utility",
     "backpack.services.loader",
@@ -43,7 +46,7 @@ angular.module('starter', ['ionic',
 })
 
 .config(function ($stateProvider, $ionicConfigProvider, $urlRouterProvider) {
-    $ionicConfigProvider.tabs.position('top');
+    $ionicConfigProvider.tabs.position('bottom');
 
     $stateProvider
     .state("characters", {
@@ -51,20 +54,27 @@ angular.module('starter', ['ionic',
         templateUrl: "templates/characters.html",
         controller: "CharactersCtrl",
     })
+    .state("character-detail", {
+        url: "/character-detail:characterId",
+        templateUrl: "templates/character-detail.html",
+        controller: "CharacterDetailCtrl",
+    })
 
     .state("tabs", {
         url: "/tabs",
         abstract: true,
-        templateUrl: "templates/tabs.html"
+        templateUrl: "templates/tabs.html",
+        controller: "ApplicationCtrl"
     })
     .state("tabs.character", {
+        cache: false,
         url: "/character",
         views: {
             "tab-character": {
                 templateUrl: "templates/tab-character.html",
                 controller: "TabCharacterCtrl"
             }
-        }
+        },
     })
     .state("tabs.inventory", {
         url: "/inventory",
@@ -85,7 +95,7 @@ angular.module('starter', ['ionic',
         }
     })
     .state("tabs.items-item-detail", {
-        url: "/detail/:itemId?isEdit",
+        url: "/item-detail/:itemId?isEdit",
         views: {
             "tab-items": {
                 templateUrl: "templates/item-detail.html",
@@ -94,11 +104,20 @@ angular.module('starter', ['ionic',
         }
     })
     .state("tabs.inventory-item-detail", {
-        url: "/detail/:itemId",
+        url: "/item-detail/:itemId",
         views: {
             "tab-inventory": {
                 templateUrl: "templates/item-detail.html",
                 controller: "ItemDetailCtrl"
+            }
+        }
+    })
+    .state("tabs.bag-detail", {
+        url: "/bag-detail/:bagId",
+        views: {
+            "tab-inventory": {
+                templateUrl: "templates/bag-detail.html",
+                controller: "BagDetailCtrl"
             }
         }
     })

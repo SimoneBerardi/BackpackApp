@@ -4,11 +4,20 @@
     var self = this;
 
     self.isDebugging = false;
-    self.sizes = {
-        0: "Piccola",
-        1: "Media",
-        2: "Grande"
-    };
+    self.sizes = [
+         {
+             id: 0,
+             name: "Piccola",
+         },
+         {
+             id: 1,
+             name: "Media",
+         },
+         {
+             id: 2,
+             name: "Grande",
+         },
+    ];
     self.tables = {};
 
     self.iterateProperties = function (obj, callback) {
@@ -47,11 +56,20 @@
                 onConfirm(quantity);
         })
     }
-    self.confirmDeleteItemQuantity = function (quantity, name, onConfirm) {
-        self._confirm("Cancellazione", "Buttare " + quantity + " " + name + "?", onConfirm);
+    self.confirmDeleteBag = function (name, onConfirm) {
+        var title = "Eliminazione";
+        var message = "Eliminare la borsa " + name + " e tutto il suo contenuto?";
+        self._confirm(title, message, onConfirm);
+    }
+    self.confirmRemoveItemQuantity = function (quantity, name, onConfirm) {
+        var title = "Cancellazione";
+        var message = "Buttare " + quantity + " " + name + "?";
+        self._confirm(title, message, onConfirm);
     }
     self.confirmDeleteItem = function (name, onConfirm) {
-        self._confirm("Cancellazione", "Eliminare " + name + " dall'inventario di tutti i personaggi?", onConfirm);
+        var title = "Eliminazione";
+        var message = "Eliminare " + name + " dall'inventario di tutti i personaggi?";
+        self._confirm(title, message, onConfirm);
     }
     self._confirm = function (title, message, onConfirm) {
         $ionicPopup.confirm({
@@ -62,6 +80,33 @@
                 onConfirm();
             }
         });
+    }
+    self.selectFromList = function ($scope, title, list, onConfirm) {
+        $scope.list = {
+            elements: list,
+            value: list[0],
+        };
+        $ionicPopup.show({
+            templateUrl: "templates/popup/select.html",
+            title: title,
+            scope: $scope,
+            buttons: [
+                { text: "Annulla" },
+                {
+                    text: "<b>Conferma</b>",
+                    type: "button-positive",
+                    onTap: function (e) {
+                        if (!$scope.list.value)
+                            e.preventDefault();
+                        else
+                            return $scope.list.value;
+                    }
+                }
+            ]
+        }).then(function (select) {
+            if (select)
+                onConfirm(select);
+        })
     }
 
     return self;
