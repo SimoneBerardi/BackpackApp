@@ -1,6 +1,7 @@
 ﻿angular.module("backpack.controllers.tabitems", [])
 
 .controller("TabItemsCtrl", function ($scope, $state, $filter, $ionicPopup, $ionicActionSheet, Loader, Session, Utility) {
+    $scope.search = "";
     $scope.categories = Session.categories;
 
     $scope.toggleCategory = function (category) {
@@ -51,7 +52,7 @@
             destructiveText: item.IsCustom == 1 ? "Elimina" : "",
             destructiveButtonClicked: function () {
                 hideMenu();
-                Utility.confirmDeleteItem(item.Name, function () {
+                Utility.confirmDeleteItem(item, function () {
                     Session.deleteItem(item);
                 });
             },
@@ -76,9 +77,9 @@
             quantity = 1;
 
         if ($scope.getInventoryQuantity(item) >= quantity) {
-            Utility.confirmRemoveItemQuantity(quantity, item.Name, function () {
+            Utility.confirmRemoveBagItemQuantity(item, quantity, function () {
                 var mainBag = $filter("filter")(Session.bags, { IsMain: 1 }, true)[0];
-                var bagItem = Session.getBagItem(mainBag, item);
+                bagItem = Session.getBagItem(mainBag, item);
                 if (bagItem.length > 0) {
                     bagItem = bagItem[0];
                     var quantityToRemove = Math.min(quantity, bagItem.Quantity);

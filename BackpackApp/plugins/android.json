@@ -27,6 +27,9 @@
         },
         "cordova-plugin-sqlite-2": {
             "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
         }
     },
     "dependent_plugins": {}

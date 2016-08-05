@@ -1,0 +1,7 @@
+Id,Name,Description,IsCustom
+1,Arma,,0
+2,Armatura,,0
+3,Magico,,0
+4,Proiettile,,0
+5,Lancio,,0
+6,Distanza,,0

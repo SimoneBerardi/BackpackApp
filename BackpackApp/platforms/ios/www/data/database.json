@@ -1,0 +1,49 @@
+﻿{
+  "tables": [
+    {
+      "name": "Categories",
+      "foreignKey": "Category_Id",
+      "create": "CREATE TABLE 'Categories' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Notes' TEXT )",
+      "data": "data/Categories.txt"
+    },
+    {
+      "name": "Characters",
+      "foreignKey": "Character_Id",
+      "create": "CREATE TABLE 'Characters' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Strength' INTEGER NOT NULL DEFAULT 0, 'Size' INTEGER NOT NULL DEFAULT 1, 'Race' TEXT, 'Class' TEXT, 'Image' TEXT NOT NULL, 'Notes' TEXT )",
+      "data": "data/Characters.txt"
+    },
+    {
+      "name": "Items",
+      "foreignKey": "Item_Id",
+      "create": "CREATE TABLE 'Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Description' TEXT, 'Weight' REAL NOT NULL DEFAULT 0, 'Image' TEXT, 'IsCustom' NUMERIC NOT NULL DEFAULT 0, 'IsUnidentified' NUMERIC NOT NULL DEFAULT 0, 'Category_Id' INTEGER, FOREIGN KEY('Category_Id') REFERENCES 'Categories'('Id') )",
+      "data": "data/Items.txt"
+    },
+    {
+      "name": "Loads",
+      "create": "CREATE TABLE IF NOT EXISTS 'Loads' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Strength' INTEGER NOT NULL, 'Light' REAL NOT NULL, 'Medium' REAL NOT NULL, 'Heavy' REAL NOT NULL )",
+      "data": "data/Loads.txt"
+    },
+    {
+      "name": "Tags",
+      "foreignKey": "Tag_Id",
+      "create": "CREATE TABLE IF NOT EXISTS 'Tags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Description' TEXT, 'IsCustom' NUMERIC NOT NULL DEFAULT 0 )",
+      "data": "data/Tags.txt"
+    },
+    {
+      "name": "Bag_Items",
+      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'Notes' TEXT, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
+      "data": "data/Bag_Items.txt"
+    },
+    {
+      "name": "Character_Bags",
+      "foreignKey": "Bag_Id",
+      "create": "CREATE TABLE 'Character_Bags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Name' TEXT NOT NULL, 'Capacity' REAL, 'Weight' REAL NOT NULL, 'HasFixedWeight' NUMERIC NOT NULL DEFAULT 0, 'IsEquipped' NUMERIC NOT NULL DEFAULT 0, 'IsMain' NUMERIC NOT NULL DEFAULT 0, 'Image' TEXT, 'Character_Id' INTEGER NOT NULL, FOREIGN KEY('Character_Id') REFERENCES 'Characters(Id)' )",
+      "data": "data/Character_Bags.txt"
+    },
+    {
+      "name": "Item_Tags",
+      "create": "CREATE TABLE 'Item_Tags' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Item_Id' INTEGER NOT NULL, 'Tag_Id' INTEGER NOT NULL, FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id'), FOREIGN KEY('Tag_Id') REFERENCES 'Tags'('Id') )",
+      "data": "data/Item_Tags.txt"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-sqlite-2": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        },
+        "ionic-plugin-keyboard": {
+            "PACKAGE_NAME": "com.obliviumapp.backpack"
+        }
+    },
+    "dependent_plugins": {}
+}

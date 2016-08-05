@@ -1,0 +1,2 @@
+Id,Name,Strength,Size,Race,Class,Image,Notes
+1,Simone,18,1,Mezz'orco,Barbaro,img/characters/barbarian.png,Note del personaggio

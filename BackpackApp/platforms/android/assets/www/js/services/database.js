@@ -50,48 +50,35 @@
     }
 
     //Metodi privati
-    self._getTableColumns = function (table) {
-        var deferred = $q.defer();
-        if (Utility.isDebugging) {
-            deferred.resolve(table.columns);
-        } else {
-            var query = "PRAGMA table_info(" + table.name + ")";
-            self._query(query).then(function (result) {
-                deferred.resolve(result);
-            });
-        }
-        return deferred.promise;
-    }
     self._loadDatabase = function () {
         if (Utility.isDebugging)
             return self._loadBrowserDatabase();
         else
             return self._loadNativeDatabase();
     };
+    //carica il database su dispositivo nativo
     self._loadNativeDatabase = function () {
-        //TODO caricare le tabelle tramite query su db
         var deferred = $q.defer();
         self._initializeNativeDatabase().then(function () {
             self.db = sqlitePlugin.openDatabase(self.dbName, "1.0", "", 1);
-            deferred.resolve();
+            $http.get("data/database.json").success(function (data) {
+                var promises = [];
+                angular.forEach(data.tables, function (table) {
+                    promises.push(self._loadTableData(table));
+                });
+                $q.all(promises).then(function () {
+                    deferred.resolve();
+                })
+            });
         })
         return deferred.promise;
     }
     //Carica il database su browser
     self._loadBrowserDatabase = function () {
         var deferred = $q.defer();
-
         self.db = window.openDatabase(self.dbName, "1.0", "database", -1);
-        self._createTables().then(function () {
-            deferred.resolve();
-        });
-
-        return deferred.promise;
-    };
-    self._createTables = function () {
-        var deferred = $q.defer();
-        var promises = [];
         $http.get("data/database.json").success(function (data) {
+            var promises = [];
             angular.forEach(data.tables, function (table) {
                 promises.push(self._loadTableJson(table));
             });
@@ -101,9 +88,26 @@
         });
         return deferred.promise;
     };
+    self._loadTableData = function (table) {
+        var deferred = $q.defer();
+        $http.get(table.data).success(function (data) {
+            var lines = data.split("\r\n");
+            var columns = lines[0];
+            Utility.tables[table.name] = {
+                name: table.name,
+                foreignKey: table.foreignKey,
+                columns: columns.split(","),
+            }
+            deferred.resolve();
+        });
+        return deferred.promise;
+    }
     self._loadTableJson = function (table) {
         var deferred = $q.defer();
         self._deleteTable(table.name)
+        .then(function () {
+            return self._loadTableData(table);
+        })
         .then(function () {
             return self._query(table.create);
         })
@@ -121,33 +125,24 @@
     };
     self._populateTable = function (table) {
         var deferred = $q.defer();
-        var promises = [];
-        if (table.data != "")
-            $http.get(table.data).success(function (data) {
-                var lines = data.split("\r\n");
-                var columns = lines[0];
-                lines.splice(0, 1);
-                Utility.tables[table.name] = {
-                    name: table.name,
-                    foreignKey: table.foreignKey,
-                    columns: columns.split(","),
-                }
-                angular.forEach(lines, function (line) {
-                    var query = "INSERT OR REPLACE INTO " + table.name + " (" + columns + ") VALUES(";
-                    angular.forEach(line.split(","), function (cell) {
-                        query += "\"" + cell + "\",";
-                    });
-                    query = query.slice(0, -1);
-                    query += ")";
-                    promises.push(self._query(query));
+        $http.get(table.data).success(function (data) {
+            var promises = [];
+            var lines = data.split("\r\n");
+            var columns = lines[0];
+            lines.splice(0, 1);
+            angular.forEach(lines, function (line) {
+                var query = "INSERT OR REPLACE INTO " + table.name + " (" + columns + ") VALUES(";
+                angular.forEach(line.split(","), function (cell) {
+                    query += "\"" + cell + "\",";
                 });
-                $q.all(promises).then(function () {
-                    deferred.resolve();
-                })
+                query = query.slice(0, -1);
+                query += ")";
+                promises.push(self._query(query));
             });
-        else
-            deferred.resolve();
-
+            $q.all(promises).then(function () {
+                deferred.resolve();
+            })
+        });
         return deferred.promise;
     };
     //Esegue una query su database
@@ -168,13 +163,29 @@
                 } else
                     deferred.resolve(result);
             }, function (transaction, error) {
-                $log.log("Errore in query: " + query);
-                $log.log(error.message);
+                $log.log("Errore in query: " + query + "\n" + error.message);
                 deferred.reject(error);
             });
         });
         return deferred.promise;
     };
+    self._readQuery = function (query, bindings) {
+        var deferred = $q.defer();
+        bindings = typeof bindings !== "undefined" ? bindings : [];
+        self.db.readTransaction(function (transaction) {
+            transaction.executeSql(query, bindings, function (transaction, result) {
+                var output = [];
+                for (var i = 0; i < result.rows.length; i++) {
+                    output.push(result.rows.item(i));
+                }
+                deferred.resolve(output);
+            }, function (transaction, error) {
+                $log.log("Errore in readQuery: " + query + "\n" + error.message);
+                deferred.reject(error);
+            });
+        });
+        return deferred.promise;
+    }
     //Carica il database su dispositivo se non presente
     self._initializeNativeDatabase = function () {
         var deferred = $q.defer();

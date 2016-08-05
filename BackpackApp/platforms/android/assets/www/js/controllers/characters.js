@@ -29,6 +29,8 @@
         $state.go("character-detail", { characterId: character.Id });
     }
     $scope.deleteCharacter = function (character) {
-        Session.deleteCharacter(character);
+        Utility.confirmDeleteCharacter(character, function () {
+            Session.deleteCharacter(character);
+        })
     }
 })

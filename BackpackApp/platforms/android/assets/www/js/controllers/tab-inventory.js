@@ -3,6 +3,7 @@
 .controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, $ionicActionSheet, $ionicPopover, $filter, Loader, Session, Utility) {
     $scope.bags = Session.bags;
     $scope.isMultipleSelection = false;
+    $scope.isSearching = false;
 
     $scope.toggleBag = function (bag) {
         bag.isOpen = !bag.isOpen;
@@ -78,17 +79,17 @@
             className = "item-assertive";
         return className;
     }
-    $scope.removeBagItem = function (bag, bagItem, quantity) {
+    $scope.removeBagItem = function (bagItem, quantity) {
         if (quantity == undefined)
             quantity = 1;
 
-        Utility.confirmRemoveItemQuantity(quantity, bagItem.item.Name, function () {
+        Utility.confirmRemoveBagItemQuantity(bagItem.item, quantity, function () {
             Session.removeBagItem(bagItem, quantity);
         })
     }
-    $scope.removeBagItemQuantity = function (bag, bagItem) {
+    $scope.removeBagItemQuantity = function (bagItem) {
         Utility.askQuantity($scope, "Quantità da buttare?", bagItem.Quantity, function (quantity) {
-            $scope.removeBagItem(bag, bagItem, quantity);
+            $scope.removeBagItem(bagItem, quantity);
         });
     }
     $scope.showItemMenu = function (bag, bagItem) {
@@ -114,7 +115,7 @@
                         $scope.modifyNote(bagItem);
                         break;
                     case 2:
-                        $scope.removeBagItemQuantity(bag, bagItem);
+                        $scope.removeBagItemQuantity(bagItem);
                         break;
                     case 3:
                         $scope.moveBagItemBag(bag, bagItem);
@@ -133,7 +134,7 @@
         };
         $ionicPopup.show({
             template: "<input type='text' ng-model='notes.value'>",
-            title: bagItem.Name + " - Note",
+            title: bagItem.item.Name + " - Note",
             scope: $scope,
             buttons: [
                 { text: "Annulla" },
@@ -215,7 +216,7 @@
             destructiveText: bag.IsEquipped == 0 ? "" : "Elimina",
             destructiveButtonClicked: function () {
                 hideMenu();
-                Utility.confirmDeleteBag(bag.Name, function () {
+                Utility.confirmDeleteBag(bag, function () {
                     Session.deleteBag(bag);
                 });
             },
@@ -231,5 +232,10 @@
                 hideMenu();
             }
         })
+    }
+    $scope.toggleSearching = function () {
+        if ($scope.isSearching)
+            $scope.query = "";
+        $scope.isSearching = !$scope.isSearching;
     }
 })

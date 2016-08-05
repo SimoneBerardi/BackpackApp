@@ -1,7 +1,18 @@
 ﻿<ion-view view-title="Oggetti">
+    <ion-header-bar class="bar bar-subheader no-padding">
+        <div class="bar bar-header item-input-inset">
+            <label class="item-input-wrapper">
+                <i class="icon ion-ios-search placeholder-icon"></i>
+                <input type="search" placeholder="Cerca" ng-model="query">
+            </label>
+            <button class="button button-clear" ng-click="query=''">
+                Cancella
+            </button>
+        </div>
+    </ion-header-bar>
     <ion-content class="tab-items">
         <ion-list class="table-list floating-button-list">
-            <div ng-repeat="category in categories | orderBy:'Name'">
+            <div ng-repeat="category in categories |  orderBy:'Name'">
                 <ion-item class="item-stable category" ng-click="toggleCategory(category)" ng-class="{active:category.isOpen}">
                     <div class="row">
                         <div class="col col-10">
@@ -12,7 +23,7 @@
                         </div>
                     </div>
                 </ion-item>
-                <ion-item class="item item-accordion category-item" ng-repeat="item in category.getItems() | orderBy:'Name'" ng-show="category.isOpen" ng-click="addBagItem(item)" on-hold="showMenu(item)" ng-swipe-left="removeBagItem(item)">
+                <ion-item class="item item-accordion category-item" ng-repeat="item in category.getItems() | filter:query | orderBy:'Name'" ng-show="category.isOpen" ng-click="addBagItem(item)" on-hold="showMenu(item)" on-swipe-left="removeBagItem(item)">
                     <div class="row">
                         <div class="col col-10 icon" ng-click="showDetails($event, item, false)">
                             <i class="icon ion-information-circled"></i>

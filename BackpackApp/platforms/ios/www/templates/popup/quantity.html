@@ -1,0 +1,13 @@
+﻿<div class="popup-quantity">
+    <div class="row">
+        <div class="col col-25">
+            <img ng-src="img/minus.png" ng-click="remove()" on-touch="startTimer(remove)" on-release="stopTimer()" ng-mouseleave="stopTimer()" />
+        </div>
+        <div class="col">
+            <input type="number" ng-model="quantity.value" disabled />
+        </div>
+        <div class="col col-25">
+            <img ng-src="img/plus.png" ng-click="add()" on-touch="startTimer(add)" on-release="stopTimer()" ng-mouseleave="stopTimer()" />
+        </div>
+    </div>
+</div>

@@ -1,5 +1,20 @@
 ﻿<ion-view view-title="Inventario">
-    <ion-content class="tab-inventory has-footer">
+    <ion-nav-title>
+        Inventario
+        <i class="icon ion-ios-search placeholder-icon right-icon" ng-click="toggleSearching()"></i>
+    </ion-nav-title>
+    <ion-header-bar class="bar bar-subheader no-padding" ng-show="isSearching">
+        <div class="bar bar-header item-input-inset">
+            <label class="item-input-wrapper">
+                <i class="icon ion-ios-search placeholder-icon"></i>
+                <input type="search" placeholder="Cerca" ng-model="query">
+            </label>
+            <button class="button button-clear" ng-click="query=''">
+                Cancella
+            </button>
+        </div>
+    </ion-header-bar>
+    <ion-content class="tab-inventory has-footer has-header" ng-class="isSearching ? 'has-subheader' : ''">
         <popup-quantity ng-model="ngModel"></popup-quantity>
         <ion-list class="table-list">
             <div ng-repeat="bag in bags">
@@ -23,7 +38,7 @@
                     Carico: {{getBagLoad(bag)}} / {{bag.Capacity}} Kg
                 </ion-item>
                 <!--<ion-item class="item item-accordion" ng-repeat="item in bag.items" ng-show="bag.isOpen" on-hold="activateMultipleSelection(item)" ng-click="toggleItem(item)">-->
-                <ion-item class="item item-accordion bag-item" ng-repeat="bagItem in bag.items | orderBy:'item.Name'" ng-show="bag.isOpen" ng-swipe-left="removeBagItem(bagItem)" on-hold="showItemMenu(bag, bagItem)" ng-click="toggleEquipped(bag, bagItem)">
+                <ion-item class="item item-accordion bag-item" ng-repeat="bagItem in bag.items | filter:query | orderBy:'item.Name'" ng-show="bag.isOpen" on-swipe-left="removeBagItem(bagItem)" on-hold="showItemMenu(bag, bagItem)" ng-click="toggleEquipped(bag, bagItem)">
                     <div class="row">
                         <div class="col name">
                             {{bagItem.item.Name}}

@@ -56,19 +56,24 @@
                 onConfirm(quantity);
         })
     }
-    self.confirmDeleteBag = function (name, onConfirm) {
+    self.confirmDeleteCharacter = function (character, onConfirm) {
         var title = "Eliminazione";
-        var message = "Eliminare la borsa " + name + " e tutto il suo contenuto?";
+        var message = "Eliminare il personaggio " + character.Name + "?";
         self._confirm(title, message, onConfirm);
     }
-    self.confirmRemoveItemQuantity = function (quantity, name, onConfirm) {
+    self.confirmDeleteBag = function (bag, onConfirm) {
+        var title = "Eliminazione";
+        var message = "Eliminare la borsa " + bag.Name + " e tutto il suo contenuto?";
+        self._confirm(title, message, onConfirm);
+    }
+    self.confirmRemoveBagItemQuantity = function (item, quantity, onConfirm) {
         var title = "Cancellazione";
-        var message = "Buttare " + quantity + " " + name + "?";
+        var message = "Buttare " + quantity + " " + item.Name + "?";
         self._confirm(title, message, onConfirm);
     }
-    self.confirmDeleteItem = function (name, onConfirm) {
+    self.confirmDeleteItem = function (item, onConfirm) {
         var title = "Eliminazione";
-        var message = "Eliminare " + name + " dall'inventario di tutti i personaggi?";
+        var message = "Eliminare " + item.Name + " dall'inventario di tutti i personaggi?";
         self._confirm(title, message, onConfirm);
     }
     self._confirm = function (title, message, onConfirm) {

@@ -190,7 +190,8 @@ module.exports.metadata =
     "cordova-plugin-statusbar": "2.1.3",
     "ionic-plugin-keyboard": "1.0.9",
     "cordova-plugin-file": "4.1.1",
-    "cordova-plugin-sqlite-2": "1.0.4"
+    "cordova-plugin-sqlite-2": "1.0.4",
+    "cordova-plugin-crosswalk-webview": "1.8.0"
 };
 // BOTTOM OF METADATA
 });
