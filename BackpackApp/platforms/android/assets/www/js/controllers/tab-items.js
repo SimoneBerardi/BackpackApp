@@ -34,12 +34,10 @@
             $event.stopPropagation();
         $state.go("tabs.items-item-detail", { itemId: item.Id, isEdit: isEdit });
     }
-    $scope.addItem = function () {
-        $state.go("tabs.items-item-detail", { itemId: -1, isEdit: true });
-    }
     $scope.showMenu = function (item) {
         var buttons = [
             { text: "Aggiungi quantità" },
+            { text: "Gestione tags" },
             { text: item.IsCustom == 1 ? "Modifica" : "Nuovo" },
         ];
         if ($scope.getInventoryQuantity(item) > 0)
@@ -62,9 +60,12 @@
                         $scope.addBagItemQuantity(item);
                         break;
                     case 1:
-                        $scope.showDetails(null, item, true);
+                        $state.go("tabs.tags");
                         break;
                     case 2:
+                        $scope.showDetails(null, item, true);
+                        break;
+                    case 3:
                         $scope.removeBagItemQuantity(item);
                         break;
                 }

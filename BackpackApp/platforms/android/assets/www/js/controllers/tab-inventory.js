@@ -94,6 +94,7 @@
     }
     $scope.showItemMenu = function (bag, bagItem) {
         var buttons = [
+            { text: "Aggiungi quantità" },
             { text: "Dettagli" },
             { text: "Modifica nota" },
             { text: "Rimuovi quantità" },
@@ -109,18 +110,21 @@
             buttonClicked: function (index) {
                 switch (index) {
                     case 0:
-                        $state.go("tabs.inventory-item-detail", { itemId: bagItem.item.Id })
+                        $scope.addBagItemQuantity(bagItem.item);
                         break;
                     case 1:
-                        $scope.modifyNote(bagItem);
+                        $state.go("tabs.inventory-item-detail", { itemId: bagItem.item.Id })
                         break;
                     case 2:
-                        $scope.removeBagItemQuantity(bagItem);
+                        $scope.modifyNote(bagItem);
                         break;
                     case 3:
-                        $scope.moveBagItemBag(bag, bagItem);
+                        $scope.removeBagItemQuantity(bagItem);
                         break;
                     case 4:
+                        $scope.moveBagItemBag(bag, bagItem);
+                        break;
+                    case 5:
                         $scope.moveBagItemBagQuantity(bag, bagItem);
                         break;
                 }
@@ -237,5 +241,16 @@
         if ($scope.isSearching)
             $scope.query = "";
         $scope.isSearching = !$scope.isSearching;
+    }
+    $scope.addBagItem = function (item, quantity) {
+        if (quantity == undefined)
+            quantity = 1;
+        var mainBag = $filter("filter")(Session.bags, { IsMain: 1 }, true)[0];
+        Session.addBagItem(mainBag, item, quantity);
+    }
+    $scope.addBagItemQuantity = function (item) {
+        Utility.askQuantity($scope, "Quantità da aggiungere?", null, function (quantity) {
+            $scope.addBagItem(item, quantity);
+        });
     }
 })

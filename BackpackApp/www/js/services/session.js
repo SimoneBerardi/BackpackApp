@@ -16,32 +16,32 @@
 
     self.init = function () {
         var deferred = $q.defer();
-        Database.init().then(function () {
-            return Database.selectAll(Utility.tables.Loads);
-        }).then(function (loads) {
-            self.loads = loads;
-            return Database.selectAll(Utility.tables.Characters);
-        }).then(function (characters) {
-            //Carico i personaggi
-            self.characters = characters;
-            //Carico gli oggetti
-            return Database.selectAll(Utility.tables.Items);
-        }).then(function (items) {
-            self.items = items;
-            //Carico le categorie degli oggetti
-            return Database.selectAll(Utility.tables.Categories);
-        }).then(function (categories) {
-            self.categories = categories;
-            self._loadCategories(self.categories);
-            //Carico i tags
-            return Database.selectAll(Utility.tables.Tags);
-        }).then(function (tags) {
-            self.tags = tags;
 
-            //Inizializzazione completata
-            self.isInitialized = true;
-            deferred.resolve();
+        Database.init().then(function () {
+            var promises = [];
+            promises.push(self.loadValues(self.characters, Utility.tables.Characters));
+            promises.push(self.loadValues(self.categories, Utility.tables.Categories));
+            promises.push(self.loadValues(self.tags, Utility.tables.Tags));
+            promises.push(self.loadValues(self.items, Utility.tables.Items));
+
+            if (Utility.version == "3.5")
+                promises.push(self.loadValues(self.loads, Utility.tables.Loads));
+
+            $q.all(promises).then(function () {
+                self._loadCategories(self.categories);
+                self.isInitialized = true;
+                deferred.resolve();
+            });
         });
+
+        return deferred.promise;
+    };
+    self.loadValues = function (array, table) {
+        var deferred = $q.defer();
+        Database.selectAll(table).then(function (result) {
+            angular.merge(array, result);
+            deferred.resolve();
+        })
         return deferred.promise;
     };
     self.selectCharacter = function (character) {
@@ -49,8 +49,16 @@
         self.character = null;
         self.bags.splice(0, self.bags.length);
 
-        var load = $filter("filter")(self.loads, { Strength: character.Strength }, true)[0];
-        character.load = load;
+        if (Utility.version == "3.5") {
+            var load = $filter("filter")(self.loads, { Strength: character.Strength }, true)[0];
+            character.load = load;
+        } else if (Utility.version == "5") {
+            character.load = {
+                Light: character.Strength * 5,
+                Medium: character.Strength * 10,
+                Heavy: character.Strength * 15,
+            }
+        }
 
         self.character = character;
         //Carico le borse
@@ -70,9 +78,12 @@
 
 
     //---Metodi di utility---
+    self.getTag = function (id) {
+        return $filter("filter")(self.tags, { Id: id }, true)[0];
+    };
     self.getCharacter = function (id) {
         return $filter("filter")(self.characters, { Id: id }, true)[0];
-    }
+    };
     self.getCharacterSize = function () {
         return $filter("filter")(Utility.sizes, { id: self.character.Size }, true)[0].name;
     };
@@ -112,6 +123,31 @@
 
 
     //---Metodi database---
+    //Tags
+    self.deleteTag = function (tag) {
+        var deferred = $q.defer();
+        Database.deleteById(Utility.tables.Tags, tag.Id).then(function () {
+            Database.deleteBycolumn(Utility.tables.Item_Tags, Utility.tables.Tags.foreignKey, tag.Id).then(function () {
+                var index = self.tags.indexOf(tag);
+                self.tags.splice(index, 1);
+                deferred.resolve();
+            })
+        })
+        return deferred.promise;
+    };
+    self.addOrModifyTag = function (tag) {
+        var deferred = $q.defer();
+        Database.insertOrReplace(Utility.tables.Tags, tag).then(function (result) {
+            tag.Id = result.insertId;
+            var oldTag = self.getTag(tag.Id);
+            if (oldTag != undefined)
+                angular.merge(oldTag, tag);
+            else
+                self.tags.push(tag);
+            deferred.resolve();
+        })
+        return deferred.promise;
+    };
     //Character
     self.deleteCharacter = function (character) {
         var deferred = $q.defer();

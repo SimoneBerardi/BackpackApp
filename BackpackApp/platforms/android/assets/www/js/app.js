@@ -18,6 +18,8 @@ angular.module('starter', ['ionic',
     "backpack.controllers.bagdetail",
     "backpack.controllers.application",
     "backpack.controllers.characterdetail",
+    "backpack.controllers.tags",
+    "backpack.controllers.tagdetail",
     //Services
     "backpack.services.utility",
     "backpack.services.loader",
@@ -118,6 +120,24 @@ angular.module('starter', ['ionic',
             "tab-inventory": {
                 templateUrl: "templates/bag-detail.html",
                 controller: "BagDetailCtrl"
+            }
+        }
+    })
+    .state("tabs.tags", {
+        url: "/tags",
+        views: {
+            "tab-items": {
+                templateUrl: "templates/tags.html",
+                controller: "TagsCtrl",
+            }
+        }
+    })
+    .state("tabs.tag-detail", {
+        url: "/tag-detail/:tagId?isEdit",
+        views: {
+            "tab-items": {
+                templateUrl: "templates/tag-detail.html",
+                controller: "TagDetailCtrl",
             }
         }
     })

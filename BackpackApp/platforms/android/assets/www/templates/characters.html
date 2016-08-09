@@ -6,12 +6,12 @@
                 <h1>{{character.Name}}</h1>
                 <h2>Forza: {{character.Strength}}</h2>
                 <h2>{{character.Class}} / {{character.Race}}</h2>
-                <ion-option-button class="button-energized" ng-click="modifyCharacter(character)">Modifica</ion-option-button>
-                <ion-option-button class="button-assertive" ng-click="deleteCharacter(character)">Elimina</ion-option-button>
+                <ion-option-button class="button-energized" ui-sref="character-detail({characterId: character.Id})">Modifica</ion-option-button>
+                <ion-option-button class="button-assertive" ng-click="delete(character)">Elimina</ion-option-button>
             </ion-item>
         </ion-list>
     </ion-content>
-    <button class="button button-assertive button-float" ng-click="addCharacter()">
+    <button class="button button-assertive button-float" ui-sref="character-detail({characterId: -1})">
         <i class="icon ion-plus"></i>
     </button>
 </ion-view>

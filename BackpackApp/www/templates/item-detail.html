@@ -22,7 +22,7 @@
             <ion-item>
                 <h3>Tags</h3>
                 <ion-list>
-                    <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'Name'" ng-model="tag.value" ng-disabled="!isEdit || item.IsCustom == 0">{{tag.name}}</ion-checkbox>
+                    <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'name'" ng-model="tag.value" ng-disabled="!isEdit || item.IsCustom == 0">{{tag.name}}</ion-checkbox>
                 </ion-list>
             </ion-item>
         </div>

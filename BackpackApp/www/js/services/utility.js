@@ -19,6 +19,9 @@
          },
     ];
     self.tables = {};
+    //Indica la versione di dnd da gestire
+    //a scelta tra 5 e 3.5 in formato stringa
+    self.version = "5",
 
     self.iterateProperties = function (obj, callback) {
         for (var property in obj) {
@@ -55,6 +58,11 @@
             if (quantity)
                 onConfirm(quantity);
         })
+    }
+    self.confirmDeleteTag = function (tag, onConfirm) {
+        var title = "Eliminazione";
+        var message = "Eliminare il tag e tutti i suoi riferimenti?";
+        self._confirm(title, message, onConfirm);
     }
     self.confirmDeleteCharacter = function (character, onConfirm) {
         var title = "Eliminazione";

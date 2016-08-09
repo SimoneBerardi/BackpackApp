@@ -22,13 +22,7 @@
             $state.go("tabs.character");
         })
     }
-    $scope.addCharacter = function () {
-        $state.go("character-detail", { characterId: -1 });
-    }
-    $scope.modifyCharacter = function (character) {
-        $state.go("character-detail", { characterId: character.Id });
-    }
-    $scope.deleteCharacter = function (character) {
+    $scope.delete = function (character) {
         Utility.confirmDeleteCharacter(character, function () {
             Session.deleteCharacter(character);
         })

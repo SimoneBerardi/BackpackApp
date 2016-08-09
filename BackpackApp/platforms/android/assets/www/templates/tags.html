@@ -1,0 +1,14 @@
+﻿<ion-view view-title="Tag">
+    <ion-content class="tab-tags">
+        <ion-list class="list floating-button-list">
+            <ion-item class="item" ng-repeat="tag in tags | orderBy:'Name'" ui-sref="tabs.tag-detail({tagId: tag.Id, isEdit: false})">
+                {{tag.Name}}
+                <ion-option-button class="button-energized" ui-sref="tabs.tag-detail({tagId: tag.Id, isEdit: true})" ng-show="tag.IsCustom">Modifica</ion-option-button>
+                <ion-option-button class="button-assertive" ng-click="delete(tag)" ng-show="tag.IsCustom">Elimina</ion-option-button>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+    <button class="button button-assertive button-float high-float" ui-sref="tabs.tag-detail({tagId: -1, isEdit: true})">
+        <i class="icon ion-plus"></i>
+    </button>
+</ion-view>
