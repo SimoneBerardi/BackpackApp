@@ -87,9 +87,11 @@
     self.getCharacterSize = function () {
         return $filter("filter")(Utility.sizes, { id: self.character.Size }, true)[0].name;
     };
-    self.getBagItem = function (bag, item) {
+    self.getBagItem = function (bag, item, notes) {
+        if (notes == undefined)
+            notes = "";
         return $filter("filter")(bag.items, function (bagItem, index, array) {
-            return bagItem[Utility.tables.Items.foreignKey] == item.Id;
+            return bagItem[Utility.tables.Items.foreignKey] == item.Id && bagItem.Notes == notes;
         }, true);
     };
     self.getItemTags = function (id) {
@@ -248,19 +250,26 @@
     self.moveBagItem = function (sourceBag, destBag, bagItem, quantity) {
         var deferred = $q.defer();
         self.removeBagItem(bagItem, quantity).then(function () {
-            self.addBagItem(destBag, bagItem.item, quantity).then(function () {
+            self.addBagItem(destBag, bagItem.item, quantity, bagItem.Notes).then(function () {
                 deferred.resolve();
             })
         })
         return deferred.promise;
     };
-    self.addBagItemNotes = function (bagItem, notes) {
+    self.modifyBagItemNotes = function (bagItem, notes) {
         bagItem.Notes = notes;
         return Database.insertOrReplace(Utility.tables.Bag_Items, bagItem);
     };
-    self.addBagItem = function (bag, item, quantity) {
+    self.addBagItemQuantity = function (bagItem, quantity) {
+        bagItem.Quantity += quantity;
+        return Database.insertOrReplace(Utility.tables.Bag_Items, bagItem);
+    };
+    self.addBagItem = function (bag, item, quantity, notes) {
+        if (notes == undefined)
+            notes = "";
+
         var deferred = $q.defer();
-        var bagItem = self.getBagItem(bag, item);
+        var bagItem = self.getBagItem(bag, item, notes);
         if (bagItem.length > 0) {
             bagItem = bagItem[0];
             bagItem.Quantity += quantity;
@@ -269,7 +278,7 @@
             bagItem = {
                 Id: -1,
                 Quantity: quantity,
-                Notes: "",
+                Notes: notes,
             };
             bagItem[Utility.tables.Character_Bags.foreignKey] = bag.Id;
             bagItem[Utility.tables.Items.foreignKey] = item.Id;

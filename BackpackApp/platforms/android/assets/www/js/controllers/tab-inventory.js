@@ -2,7 +2,6 @@
 
 .controller("TabInventoryCtrl", function ($scope, $state, $ionicPopup, $ionicActionSheet, $ionicPopover, $filter, Loader, Session, Utility) {
     $scope.bags = Session.bags;
-    $scope.isMultipleSelection = false;
     $scope.isSearching = false;
 
     $scope.toggleBag = function (bag) {
@@ -47,22 +46,11 @@
             className = "bar-dark";
         return className;
     };
-    $scope.activateMultipleSelection = function (item) {
-        if (!$scope.isMultipleSelection) {
-            $scope.clearSelection();
-            $scope.isMultipleSelection = true;
-            item.isSelected = true;
-        }
-    }
-    $scope.clearSelection = function () {
-        angular.forEach($scope.bags, function (bag) {
-            angular.forEach(bag.items, function (item) {
-                item.isSelected = false;
-            })
-        })
-    }
-    $scope.toggleItem = function (item) {
-        item.isSelected = !item.isSelected;
+    $scope.getBagWeight = function (bag) {
+        var load = bag.Weight;
+        if (!bag.HasFixedWeight)
+            load += $scope.getBagLoad(bag);
+        return load;
     }
     $scope.getBagLoad = function (bag) {
         var load = 0;
@@ -83,79 +71,80 @@
         if (quantity == undefined)
             quantity = 1;
 
-        Utility.confirmRemoveBagItemQuantity(bagItem.item, quantity, function () {
+        Utility.confirmRemoveBagItemQuantity(bagItem, quantity, function () {
             Session.removeBagItem(bagItem, quantity);
         })
     }
     $scope.removeBagItemQuantity = function (bagItem) {
-        Utility.askQuantity($scope, "Quantità da buttare?", bagItem.Quantity, function (quantity) {
+        var title = "Quantità da buttare?";
+        Utility.askQuantity($scope, title, bagItem.Quantity, function (quantity) {
             $scope.removeBagItem(bagItem, quantity);
         });
     }
     $scope.showItemMenu = function (bag, bagItem) {
-        var buttons = [
-            { text: "Aggiungi quantità" },
-            { text: "Dettagli" },
-            { text: "Modifica nota" },
-            { text: "Rimuovi quantità" },
-        ];
+        var buttons = [];
+        buttons.push({ text: "Aggiungi" });
+        buttons.push({ text: "Rimuovi" });
         if ($scope.bags.length > 1) {
             buttons.push({ text: "Sposta" });
-            buttons.push({ text: "Sposta quantità" });
         }
-        var hideMenu = $ionicActionSheet.show({
+        if (bagItem.Quantity > 1) {
+            buttons.push({ text: "Dividi" });
+        }
+        buttons.push({ text: "Note" });
+        buttons.push({ text: "Dettagli oggetto" });
+        $ionicActionSheet.show({
             buttons: buttons,
             titleText: "Azioni",
             cancelText: "Annulla",
-            buttonClicked: function (index) {
-                switch (index) {
-                    case 0:
-                        $scope.addBagItemQuantity(bagItem.item);
+            destructiveText: "Butta",
+            destructiveButtonClicked: function () {
+                Utility.confirmRemoveBagItemQuantity(bagItem, bagItem.Quantity, function () {
+                    Session.removeBagItem(bagItem, bagItem.Quantity);
+                })
+                return true;
+            },
+            buttonClicked: function (index, button) {
+                switch (button.text) {
+                    case "Aggiungi":
+                        $scope.addBagItemQuantity(bagItem);
                         break;
-                    case 1:
-                        $state.go("tabs.inventory-item-detail", { itemId: bagItem.item.Id })
-                        break;
-                    case 2:
-                        $scope.modifyNote(bagItem);
-                        break;
-                    case 3:
+                    case "Rimuovi":
                         $scope.removeBagItemQuantity(bagItem);
                         break;
-                    case 4:
-                        $scope.moveBagItemBag(bag, bagItem);
-                        break;
-                    case 5:
+                    case "Sposta":
                         $scope.moveBagItemBagQuantity(bag, bagItem);
                         break;
+                    case "Dividi":
+                        $scope.splitBagItem(bag, bagItem);
+                        break;
+                    case "Note":
+                        $scope.modifyNote(bagItem);
+                        break;
+                    case "Dettagli oggetto":
+                        $state.go("tabs.inventory-item-detail", { itemId: bagItem.item.Id })
+                        break;
                 }
-                hideMenu();
+                return true;
             }
         })
     }
+    $scope.splitBagItem = function (bag, bagItem) {
+        var title = "Quantità da dividere?"
+        Utility.askQuantity($scope, title, bagItem.Quantity - 1, function (quantity) {
+            title = "Nota da aggiungere?"
+            var value = "Gruppo da " + quantity;
+            Utility.askText($scope, title, value, function (text) {
+                Session.removeBagItem(bagItem, quantity).then(function () {
+                    Session.addBagItem(bag, bagItem.item, quantity, text);
+                })
+            })
+        })
+    }
     $scope.modifyNote = function (bagItem) {
-        $scope.notes = {
-            value: bagItem.Notes,
-        };
-        $ionicPopup.show({
-            template: "<input type='text' ng-model='notes.value'>",
-            title: bagItem.item.Name + " - Note",
-            scope: $scope,
-            buttons: [
-                { text: "Annulla" },
-                {
-                    text: "<b> Conferma </b>",
-                    type: "button-positive",
-                    onTap: function (e) {
-                        if (!$scope.notes.value)
-                            e.preventDefault();
-                        else
-                            return $scope.notes.value;
-                    }
-                }
-            ]
-        }).then(function (notes) {
-            if (notes)
-                Session.addBagItemNotes(bagItem, notes);
+        var title = bagItem.item.Name + " - Note";
+        Utility.askText($scope, title, bagItem.Notes, function (text) {
+            Session.modifyBagItemNotes(bagItem, text);
         })
     }
     $scope.showNotes = function ($event, item) {
@@ -205,7 +194,8 @@
         })
     }
     $scope.moveBagItemBagQuantity = function (bag, bagItem) {
-        Utility.askQuantity($scope, "Quantità da spostare?", bagItem.Quantity, function (quantity) {
+        var title = "Quantità da spostare?";
+        Utility.askQuantity($scope, title, bagItem.Quantity, function (quantity) {
             $scope.moveBagItemBag(bag, bagItem, quantity);
         });
     }
@@ -217,7 +207,7 @@
             ],
             titleText: "Azioni",
             cancelText: "Annulla",
-            destructiveText: bag.IsEquipped == 0 ? "" : "Elimina",
+            destructiveText: bag.IsEquipped == 1 ? "" : "Elimina",
             destructiveButtonClicked: function () {
                 hideMenu();
                 Utility.confirmDeleteBag(bag, function () {
@@ -242,15 +232,16 @@
             $scope.query = "";
         $scope.isSearching = !$scope.isSearching;
     }
-    $scope.addBagItem = function (item, quantity) {
+    $scope.addBagItem = function (bagItem, quantity) {
         if (quantity == undefined)
             quantity = 1;
         var mainBag = $filter("filter")(Session.bags, { IsMain: 1 }, true)[0];
-        Session.addBagItem(mainBag, item, quantity);
+        Session.addBagItemQuantity(bagItem, quantity);
     }
-    $scope.addBagItemQuantity = function (item) {
-        Utility.askQuantity($scope, "Quantità da aggiungere?", null, function (quantity) {
-            $scope.addBagItem(item, quantity);
+    $scope.addBagItemQuantity = function (bagItem) {
+        var title = "Quantità da aggiungere?";
+        Utility.askQuantity($scope, title, null, function (quantity) {
+            $scope.addBagItem(bagItem, quantity);
         });
     }
 })

@@ -31,7 +31,7 @@
     },
     {
       "name": "Bag_Items",
-      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'Notes' TEXT, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
+      "create": "CREATE TABLE 'Bag_Items' ( 'Id' INTEGER PRIMARY KEY AUTOINCREMENT, 'Quantity' INTEGER NOT NULL DEFAULT 1, 'Notes' TEXT DEFAULT '', 'Bag_Id' INTEGER NOT NULL, 'Item_Id' INTEGER NOT NULL, FOREIGN KEY('Bag_Id') REFERENCES 'Bags'('Id'), FOREIGN KEY('Item_Id') REFERENCES 'Items'('Id') )",
       "data": "data/Bag_Items.txt"
     },
     {

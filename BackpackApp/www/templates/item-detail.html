@@ -20,7 +20,7 @@
                 <textarea ng-model="item.Description" ng-disabled="!isEdit"></textarea>
             </ion-item>
             <ion-item>
-                <h3>Tags</h3>
+                <h3>Proprietà</h3>
                 <ion-list>
                     <ion-checkbox ng-repeat="tag in item.tags | orderBy: 'name'" ng-model="tag.value" ng-disabled="!isEdit || item.IsCustom == 0">{{tag.name}}</ion-checkbox>
                 </ion-list>

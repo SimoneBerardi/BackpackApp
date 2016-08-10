@@ -30,6 +30,32 @@
             }
         }
     }
+    self.askText = function ($scope, title, value, onConfirm) {
+        $scope.text = {
+            value: value,
+        };
+        $ionicPopup.show({
+            template: "<input type='text' ng-model='text.value'>",
+            title: title,
+            scope: $scope,
+            buttons: [
+                { text: "Annulla" },
+                {
+                    text: "<b> Conferma </b>",
+                    type: "button-positive",
+                    onTap: function (e) {
+                        if (!$scope.text.value)
+                            e.preventDefault();
+                        else
+                            return $scope.text.value;
+                    }
+                }
+            ]
+        }).then(function (text) {
+            if (text)
+                onConfirm(text);
+        })
+    }
     self.askQuantity = function ($scope, title, max, onConfirm) {
         $scope.quantity = {
             min: 1,
@@ -74,9 +100,12 @@
         var message = "Eliminare la borsa " + bag.Name + " e tutto il suo contenuto?";
         self._confirm(title, message, onConfirm);
     }
-    self.confirmRemoveBagItemQuantity = function (item, quantity, onConfirm) {
+    self.confirmRemoveBagItemQuantity = function (bagItem, quantity, onConfirm) {
         var title = "Cancellazione";
-        var message = "Buttare " + quantity + " " + item.Name + "?";
+        var message = "Buttare " + quantity + " " + bagItem.item.Name;
+        if (bagItem.Notes != "")
+            message += " [" + bagItem.Notes + "]";
+        message += " ?";
         self._confirm(title, message, onConfirm);
     }
     self.confirmDeleteItem = function (item, onConfirm) {

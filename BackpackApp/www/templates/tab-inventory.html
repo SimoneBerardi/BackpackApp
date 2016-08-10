@@ -3,19 +3,16 @@
         Inventario
         <i class="icon ion-ios-search placeholder-icon right-icon" ng-click="toggleSearching()"></i>
     </ion-nav-title>
-    <ion-header-bar class="bar bar-subheader no-padding" ng-show="isSearching">
+    <ion-header-bar class="bar bar-subheader no-padding search-bar" ng-show="isSearching">
         <div class="bar bar-header item-input-inset">
             <label class="item-input-wrapper">
                 <i class="icon ion-ios-search placeholder-icon"></i>
                 <input type="search" placeholder="Cerca" ng-model="query">
             </label>
-            <button class="button button-clear" ng-click="query=''">
-                Cancella
-            </button>
+            <i class="icon ion-close-circled padding" ng-click="query=''"></i>
         </div>
     </ion-header-bar>
     <ion-content class="tab-inventory has-footer has-header" ng-class="isSearching ? 'has-subheader' : ''">
-        <popup-quantity ng-model="ngModel"></popup-quantity>
         <ion-list class="table-list">
             <div ng-repeat="bag in bags">
                 <ion-item class="item-stable bag" ng-click="toggleBag(bag)" ng-class="{active:bag.isOpen}" on-hold="showBagMenu(bag)">
@@ -26,24 +23,26 @@
                         <div class="col name">
                             {{bag.Name}}
                         </div>
-                        <div class="col col-20 weight" ng-hide="bag.Weight == 0">
-                            {{bag.Weight}} Kg
+                        <div class="col col-20 weight">
+                            {{getBagWeight(bag)}} Kg
                         </div>
                         <div class="col col-10 select">
                             <input class="col-checkbox" type="checkbox" ng-model="bag.IsMain" ng-true-value="1" ng-false-value="0" ng-click="selectMainBag($event, bag)" />
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="bag.Weight == 0">
+                        <div class="col bag-load">
+                            Peso zaino: {{bag.Weight}} Kg
                         </div>
                     </div>
                 </ion-item>
                 <ion-item class="bag-load text-outlined" ng-show="bag.HasFixedWeight == 1" ng-class="getBagLoadClass(bag)">
                     Carico: {{getBagLoad(bag)}} / {{bag.Capacity}} Kg
                 </ion-item>
-                <ion-item class="item item-accordion bag-item" ng-repeat="bagItem in bag.items | filter:query | orderBy:'item.Name'" ng-show="bag.isOpen" on-swipe-right="addBagItem(bagItem.item)" on-swipe-left="removeBagItem(bagItem)" on-hold="showItemMenu(bag, bagItem)" ng-click="toggleEquipped(bag, bagItem)">
+                <ion-item class="item item-accordion bag-item" ng-class="bagItem.Notes != '' ? 'item-stable': ''" ng-repeat="bagItem in bag.items | filter:query | orderBy:'item.Name'" ng-show="bag.isOpen" on-swipe-right="addBagItem(bagItem)" on-swipe-left="removeBagItem(bagItem)" on-hold="showItemMenu(bag, bagItem)" ng-click="toggleEquipped(bag, bagItem)">
                     <div class="row">
                         <div class="col name">
                             {{bagItem.item.Name}}
-                        </div>
-                        <div class="col col-10 notes" ng-hide="bagItem.Notes == ''" ng-click="showNotes($event, bagItem)">
-                            <i class="icon ion-information-circled"></i>
                         </div>
                         <div class="col col-10 quantity">
                             {{bagItem.Quantity}}
@@ -51,8 +50,10 @@
                         <div class="col col-20 weight">
                             {{getItemWeight(bagItem)}} Kg
                         </div>
-                        <div class="col col-10" ng-show="isMultipleSelection">
-                            <input class="col-checkbox" type="checkbox" ng-model="bagItem.item.isSelected" />
+                    </div>
+                    <div class="row notes" ng-hide="bagItem.Notes == ''">
+                        <div class="col">
+                            {{bagItem.Notes}}
                         </div>
                     </div>
                 </ion-item>

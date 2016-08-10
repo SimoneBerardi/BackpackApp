@@ -25,7 +25,8 @@
         Session.addBagItem(mainBag, item, quantity);
     };
     $scope.addBagItemQuantity = function (item) {
-        Utility.askQuantity($scope, "Quantità da aggiungere?", null, function (quantity) {
+        var title = "Quantità da aggiungere?";
+        Utility.askQuantity($scope, title, null, function (quantity) {
             $scope.addBagItem(item, quantity);
         });
     }
@@ -35,13 +36,12 @@
         $state.go("tabs.items-item-detail", { itemId: item.Id, isEdit: isEdit });
     }
     $scope.showMenu = function (item) {
-        var buttons = [
-            { text: "Aggiungi quantità" },
-            { text: "Gestione tags" },
-            { text: item.IsCustom == 1 ? "Modifica" : "Nuovo" },
-        ];
+        var buttons = [];
+        buttons.push({ text: "Aggiungi" });
         if ($scope.getInventoryQuantity(item) > 0)
-            buttons.push({ text: "Rimuovi quantità" });
+            buttons.push({ text: "Rimuovi" });
+        buttons.push({ text: item.IsCustom == 1 ? "Modifica" : "Nuovo" });
+        buttons.push({ text: "Gestione proprietà" });
 
         var hideMenu = $ionicActionSheet.show({
             buttons: buttons,
@@ -54,19 +54,20 @@
                     Session.deleteItem(item);
                 });
             },
-            buttonClicked: function (index) {
-                switch (index) {
-                    case 0:
+            buttonClicked: function (index, button) {
+                switch (button.text) {
+                    case "Aggiungi":
                         $scope.addBagItemQuantity(item);
                         break;
-                    case 1:
-                        $state.go("tabs.tags");
+                    case "Rimuovi":
+                        $scope.removeBagItemQuantity(item);
                         break;
-                    case 2:
+                    case "Modifica":
+                    case "Nuovo":
                         $scope.showDetails(null, item, true);
                         break;
-                    case 3:
-                        $scope.removeBagItemQuantity(item);
+                    case "Gestione proprietà":
+                        $state.go("tabs.tags");
                         break;
                 }
                 hideMenu();
@@ -78,7 +79,7 @@
             quantity = 1;
 
         if ($scope.getInventoryQuantity(item) >= quantity) {
-            Utility.confirmRemoveBagItemQuantity(item, quantity, function () {
+            Utility.confirmRemoveBagItemQuantity({ item: item, Notes: "" }, quantity, function () {
                 var mainBag = $filter("filter")(Session.bags, { IsMain: 1 }, true)[0];
                 bagItem = Session.getBagItem(mainBag, item);
                 if (bagItem.length > 0) {
@@ -104,7 +105,8 @@
     }
     $scope.removeBagItemQuantity = function (item) {
         if ($scope.getInventoryQuantity(item) > 0) {
-            Utility.askQuantity($scope, "Quantità da buttare?", $scope.getInventoryQuantity(item), function (quantity) {
+            var title = "Quantità da buttare?";
+            Utility.askQuantity($scope, title, $scope.getInventoryQuantity(item), function (quantity) {
                 $scope.removeBagItem(item, quantity);
             })
         }

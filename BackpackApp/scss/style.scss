@@ -164,6 +164,26 @@
     }
 }
 
+.search-bar {
+    input {
+        font-size: 14pt;
+    }
+
+    i {
+        font-size: 18pt;
+    }
+}
+
+.bar-header {
+    .title span {
+        font-size: 16pt;
+    }
+
+    i {
+        font-size: 18pt;
+    }
+}
+
 //Pagine
 .tab-character {
     img {
@@ -174,6 +194,7 @@
 }
 
 .tab-inventory {
+
     .list .item {
 
         &.bag {
@@ -195,6 +216,10 @@
             text-align: right;
         }
 
+        .bag-load {
+            font-size: 12pt;
+        }
+
         &.bag-item {
             .col {
                 &.name {
@@ -212,12 +237,19 @@
                     text-align: right;
                 }
             }
+
+            .row.notes {
+                font-size: 14pt;
+            }
         }
     }
 }
 
 .tab-items {
     .list .item {
+        i {
+            font-size: 16pt;
+        }
 
         &.category {
             .col {

@@ -118,6 +118,18 @@
   .list .item.item-accordion.ng-hide-add, .list .item.item-accordion.ng-hide-remove {
     display: block !important; }
 
+.search-bar input {
+  font-size: 14pt; }
+
+.search-bar i {
+  font-size: 18pt; }
+
+.bar-header .title span {
+  font-size: 16pt; }
+
+.bar-header i {
+  font-size: 18pt; }
+
 .tab-character img {
   display: block;
   margin: auto;
@@ -135,6 +147,9 @@
   font-size: 14pt;
   text-align: right; }
 
+.tab-inventory .list .item .bag-load {
+  font-size: 12pt; }
+
 .tab-inventory .list .item.bag-item .col.name {
   font-size: 16pt; }
 
@@ -146,6 +161,12 @@
 .tab-inventory .list .item.bag-item .col.weight {
   font-size: 14pt;
   text-align: right; }
+
+.tab-inventory .list .item.bag-item .row.notes {
+  font-size: 14pt; }
+
+.tab-items .list .item i {
+  font-size: 16pt; }
 
 .tab-items .list .item.category .col.name {
   font-weight: bold;
